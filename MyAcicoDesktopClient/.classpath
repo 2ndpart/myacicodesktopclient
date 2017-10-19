@@ -2,13 +2,14 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="D:/work/Java-LF/seaglasslookandfeel-0.2.jar"/>
-	<classpathentry kind="lib" path="D:/work/Java-LF/weblaf-1.29.jar"/>
-	<classpathentry kind="lib" path="D:/work/javalib/xstream-1.4.1.jar"/>
-	<classpathentry kind="lib" path="D:/work/javalib/slf4j-1.7.25/slf4j-api-1.7.25.jar"/>
-	<classpathentry kind="lib" path="D:/work/javalib/slf4j-1.7.25/slf4j-simple-1.7.25.jar"/>
-	<classpathentry kind="lib" path="D:/work/javalib/postgre jdbc jdk 8/postgresql-42.1.4.jar"/>
-	<classpathentry kind="lib" path="D:/work/javalib/commons-io-2.5/commons-io-2.5.jar"/>
 	<classpathentry kind="lib" path="swingx.jar"/>
+	<classpathentry kind="lib" path="lib/commons-io-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/javax.mail.jar"/>
+	<classpathentry kind="lib" path="lib/postgresql-42.1.4.jar"/>
+	<classpathentry kind="lib" path="lib/seaglasslookandfeel-0.2.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-simple-1.7.25.jar"/>
+	<classpathentry kind="lib" path="lib/weblaf-1.29.jar"/>
+	<classpathentry kind="lib" path="lib/xstream-1.4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
