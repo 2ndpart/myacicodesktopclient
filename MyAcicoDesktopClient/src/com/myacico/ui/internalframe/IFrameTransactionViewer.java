@@ -5,9 +5,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.JInternalFrame;
@@ -34,14 +38,18 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeEvent;
 
 public class IFrameTransactionViewer extends JInternalFrame {
 	private JTable table;
 	private JTextField txtCustID;
 	private JTextField txtOrderID;
 	private JCheckBox chckbxTodayTrans;
+	private JCheckBox chckbxPendingTrans;
 	private JXDatePicker dtpFrom;
 	private JXDatePicker dtpTo;
+	private String baseSelectStatement = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction ORDER BY transaction_time DESC";
 	/**
 	 * Create the frame.
 	 */
@@ -63,8 +71,7 @@ public class IFrameTransactionViewer extends JInternalFrame {
 			}
 		});
 		scrollPane.setViewportView(table);
-		
-		new Thread(new DataLoader()).start();
+		new Thread(new DataLoader(this.baseSelectStatement)).start();
 	}
 	
 	private JPanel CreateFilterPanel()
@@ -95,6 +102,19 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		filterPanel.add(txtCustID, gbc_txtCustID);
 		txtCustID.setColumns(10);
 		
+		chckbxPendingTrans = new JCheckBox("Pending Trans");
+		chckbxPendingTrans.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				chckbxPendingTrans_ActionPerformed(arg0);
+			}
+		});
+		GridBagConstraints gbc_chckbxPendingTrans = new GridBagConstraints();
+		gbc_chckbxPendingTrans.anchor = GridBagConstraints.WEST;
+		gbc_chckbxPendingTrans.insets = new Insets(0, 0, 5, 5);
+		gbc_chckbxPendingTrans.gridx = 5;
+		gbc_chckbxPendingTrans.gridy = 0;
+		filterPanel.add(chckbxPendingTrans, gbc_chckbxPendingTrans);
+		
 		JLabel lblNewLabel_1 = new JLabel("Order ID");
 		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
 		gbc_lblNewLabel_1.insets = new Insets(0, 0, 5, 5);
@@ -114,6 +134,16 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		txtOrderID.setColumns(10);
 		
 		chckbxTodayTrans = new JCheckBox("Today Transaction");
+		chckbxTodayTrans.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
+					chckbxTodayTrans_actionPerformed(e);
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
 		GridBagConstraints gbc_chckbxTodayTrans = new GridBagConstraints();
 		gbc_chckbxTodayTrans.insets = new Insets(0, 0, 5, 5);
 		gbc_chckbxTodayTrans.gridx = 5;
@@ -135,6 +165,18 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		filterPanel.add(lblFrom, gbc_lblFrom);
 		
 		dtpFrom = new JXDatePicker();
+		dtpFrom.addPropertyChangeListener(new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent arg0) {
+				if(dtpFrom.getDate() != null)
+				{
+					txtOrderID.setEnabled(false);
+				}
+				else
+				{
+					txtOrderID.setEnabled(true);
+				}
+			}
+		});
 		GridBagConstraints gbc_dtpFrom = new GridBagConstraints();
 		gbc_dtpFrom.gridwidth = 2;
 		gbc_dtpFrom.fill = GridBagConstraints.HORIZONTAL;
@@ -173,6 +215,71 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		return filterPanel;
 	}
 	
+	protected void chckbxPendingTrans_ActionPerformed(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		String selectQuery = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction {0} {1} ORDER BY transaction_time DESC";
+		
+		if(chckbxPendingTrans.isSelected())
+		{
+			if(chckbxTodayTrans.isSelected())
+			{
+				Connection conn = Database.GetSQLConnection();
+				String finalQuery = MessageFormat.format(selectQuery, "WHERE transaction_status ='PENDING'","AND transaction_time =?");
+				try
+				{
+					PreparedStatement stat = conn.prepareStatement(finalQuery);
+					stat.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+					ResultSet rSet = stat.executeQuery();
+					DefaultTableModel model = UIBuilder.buildTableModel(rSet);
+					table.setModel(model);
+					rSet.close();
+					stat.close();
+					conn.close();
+				}
+				catch(Exception ex)
+				{
+					ex.printStackTrace();
+				}
+			}
+			else
+			{
+				selectQuery = MessageFormat.format(selectQuery, "WHERE transaction_status ='PENDING'", "");
+				new Thread(new DataLoader(selectQuery)).start();
+			}
+		}
+		else
+		{
+			new Thread(new DataLoader(this.baseSelectStatement)).start();
+		}
+	}
+
+	protected void chckbxTodayTrans_actionPerformed(ActionEvent e) throws SQLException {
+		// TODO Auto-generated method stub
+		if(chckbxTodayTrans.isSelected())
+		{
+			String selectQuery = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction WHERE transaction_time =? ORDER BY transaction_time DESC";
+			Connection conn = Database.GetSQLConnection();
+			try {
+				PreparedStatement stat = conn.prepareStatement(selectQuery);
+				stat.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+				ResultSet rSet = stat.executeQuery();
+				DefaultTableModel model = UIBuilder.buildTableModel(rSet);
+				table.setModel(model);
+				rSet.close();
+				stat.close();
+				conn.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				conn.close();
+			}
+		}
+		else
+		{
+			new Thread(new DataLoader(this.baseSelectStatement)).start();
+		}
+	}
+
 	protected void btnSearch_ActionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
 		String customerID = txtCustID.getText();
@@ -180,42 +287,64 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		Date dateFrom = dtpFrom.getDate();
 		Date dateTo = dtpTo.getDate();
 		
-		String selectQuery = "SELECT user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction {0} ORDER BY transaction_time DESC"; 
+		String selectQuery = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction {0} ORDER BY transaction_time DESC"; 
 		
 		if(customerID != null && customerID.length() > 0)
 		{
 			String fullQuery = MessageFormat.format(selectQuery, "WHERE user_id=" + customerID);
+			new Thread(new DataLoader(fullQuery)).start();
+		}
+		else if(dateFrom != null && dateTo != null && customerID.length() > 0)
+		{
+			Date startDate = dtpFrom.getDate();
+			Date endDate = dtpTo.getDate();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
+			String fullQuery = MessageFormat.format(selectQuery, "WHERE transaction_time >='" + formatter.format(startDate) + "' AND transaction_time <'" + formatter.format(endDate) + "' AND user_id=" + customerID);
+			new Thread(new DataLoader(fullQuery)).start();
+		}
+		else if (dateFrom != null && dateTo != null && customerID.length() == 0)
+		{
+			Date startDate = dtpFrom.getDate();
+			Date endDate = dtpTo.getDate();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+			String fullQuery = MessageFormat.format(selectQuery, "WHERE transaction_time >='" + formatter.format(startDate) + "' AND transaction_time <='" + formatter.format(endDate) + "'");
+			new Thread(new DataLoader(fullQuery)).start();
 		}
 	}
 
 	private void tableCellClicked(MouseEvent e)
 	{
-		
 		JTable target = (JTable)e.getSource();
 		int row = target.getSelectedRow();
 		
-		String userID = target.getValueAt(row, 0).toString();
-		String orderID = target.getValueAt(row, 2).toString();
-		String invoiceNumber = target.getValueAt(row, 3).toString();
+		String transID = target.getValueAt(row, 0).toString();
+		String userID = target.getValueAt(row, 1).toString();
+		String orderID = target.getValueAt(row, 3).toString();
+		String invoiceNumber = target.getValueAt(row, 4).toString();
 		
-		DetailOrderFrame detailOrder = new DetailOrderFrame(orderID, userID, invoiceNumber);
+		DetailOrderFrame detailOrder = new DetailOrderFrame(transID, orderID, userID, invoiceNumber);
 		detailOrder.setVisible(true);
 	}
 	
 	private class DataLoader implements Runnable
 	{
+		String selectStatement = "";
+		
+		public DataLoader(String query)
+		{
+			selectStatement = query;
+		}
 
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			String selectQuery = "SELECT user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction ORDER BY transaction_time DESC";
 			Connection conn = Database.GetSQLConnection();
 			if(conn != null)
 			{
 				try
 				{
 					Statement stat = conn.createStatement();
-					ResultSet rSet = stat.executeQuery(selectQuery);
+					ResultSet rSet = stat.executeQuery(selectStatement);
 					DefaultTableModel model = UIBuilder.buildTableModel(rSet);
 					
 					SwingUtilities.invokeLater(new Runnable() {

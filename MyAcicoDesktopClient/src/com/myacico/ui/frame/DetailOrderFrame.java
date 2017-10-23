@@ -25,6 +25,7 @@ import org.jdesktop.swingx.JXDatePicker;
 import com.myacico.sql.Database;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.JComboBox;
@@ -41,7 +42,7 @@ import java.awt.event.ActionEvent;
 public class DetailOrderFrame extends JFrame {
 
 	private JPanel contentPane;
-	String orderID, customerID_order, invoiceNumber = "";
+	String transID, orderID, customerID_order, invoiceNumber = "";
 	private JTextField txtTransID;
 	private JTextField txtCustID;
 	private JTextField txtTransTime;
@@ -56,12 +57,13 @@ public class DetailOrderFrame extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public DetailOrderFrame(String orderID, String customerID, String invoiceNumber) {
+	public DetailOrderFrame(String transID, String orderID, String customerID, String invoiceNumber) {
+		this.transID = transID;
 		this.orderID = orderID;
 		this.customerID_order = customerID;
 		this.invoiceNumber = invoiceNumber;
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		setBounds(100, 100, 856, 570);
+		setBounds(100, 100, 856, 391);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -108,10 +110,14 @@ public class DetailOrderFrame extends JFrame {
 		contentPane.add(lblBillingAddress);
 		
 		txtBillingAddress = new JTextArea();
+		txtBillingAddress.setWrapStyleWord(true);
+		txtBillingAddress.setLineWrap(true);
 		txtBillingAddress.setBounds(153, 158, 288, 90);
 		contentPane.add(txtBillingAddress);
 		
 		txtShippingAddress = new JTextArea();
+		txtShippingAddress.setWrapStyleWord(true);
+		txtShippingAddress.setLineWrap(true);
 		txtShippingAddress.setBounds(153, 258, 288, 90);
 		contentPane.add(txtShippingAddress);
 		
@@ -148,7 +154,7 @@ public class DetailOrderFrame extends JFrame {
 		table = new JTable();
 		scrollPane.setViewportView(table);
 		
-		DataLoader loader = new DataLoader(this.customerID_order, this.orderID, this.invoiceNumber);
+		DataLoader loader = new DataLoader(this.transID, this.customerID_order, this.orderID, this.invoiceNumber);
 		new Thread(loader).start();
 	}
 	
@@ -156,15 +162,21 @@ public class DetailOrderFrame extends JFrame {
 	{
 		String updateString = "UPDATE adempiere.app_transaction SET transaction_status ='PAID' WHERE user_id=" + this.customerID_order + " AND order_number ='" + this.orderID + "' AND invoice_number ='" + this.invoiceNumber + "'";
 		Connection conn = Database.GetSQLConnection();
-		Database.UpdateDataToServer(updateString, conn);
+		int affectedRecord = Database.UpdateDataToServer(updateString, conn);
+		
+		if(affectedRecord > 0)
+			JOptionPane.showMessageDialog(this, "Data Updated");
+		else
+			JOptionPane.showMessageDialog(this, "Error Updating Data. Please Try Again");
 	}
 	
 	private class DataLoader implements Runnable
 	{
-		String orderID, customerID, invoiceID = "";
+		String transID, orderID, customerID, invoiceID = "";
 		
-		public DataLoader(String customerID, String orderID, String invoiceID)
+		public DataLoader(String transID, String customerID, String orderID, String invoiceID)
 		{
+			this.transID = transID;
 			this.orderID = orderID;
 			this.customerID = customerID;
 			this.invoiceID = invoiceID;
@@ -215,14 +227,28 @@ public class DetailOrderFrame extends JFrame {
 								File savedImage = new File(imageLocation, "image.jpeg");
 								FileUtils.copyURLToFile(url, savedImage);
 								
-								BufferedImage image = ImageIO.read(savedImage);
-								Image resizedImage = image.getScaledInstance(transferReceiptContainer.getWidth(), transferReceiptContainer.getHeight(), Image.SCALE_SMOOTH);
-								ImageIcon icon = new ImageIcon(resizedImage);
-								transferReceiptContainer.setIcon(icon);
+								if(savedImage != null && savedImage.length() > 0 )
+								{
+									BufferedImage image = ImageIO.read(savedImage);
+									Image resizedImage = image.getScaledInstance(transferReceiptContainer.getWidth(), transferReceiptContainer.getHeight(), Image.SCALE_SMOOTH);
+									ImageIcon icon = new ImageIcon(resizedImage);
+									transferReceiptContainer.setIcon(icon);
+								}
+								else
+								{
+									FileUtils.copyURLToFile(new URL("https://storage.googleapis.com/myacicoidbucketmultiregional/image-not-found.png"), savedImage);
+									BufferedImage image = ImageIO.read(savedImage);
+									Image resizedImage = image.getScaledInstance(transferReceiptContainer.getWidth(), transferReceiptContainer.getHeight(), Image.SCALE_SMOOTH);
+									ImageIcon icon = new ImageIcon(resizedImage);
+									transferReceiptContainer.setIcon(icon);
+								}
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
+							
+							//load transaction detil data
+							
 						}
 					});
 				}
