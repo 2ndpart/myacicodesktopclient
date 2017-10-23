@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import com.alee.laf.WebLookAndFeel;
+import com.myacico.ui.internalframe.IFrameLogin;
 import com.myacico.ui.internalframe.IFrameTransactionViewer;
 
 import javax.swing.JMenuBar;
@@ -70,6 +71,10 @@ public class MainFrame extends JFrame {
 		contentPane.add(desktopPane, BorderLayout.CENTER);
 		setContentPane(contentPane);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
+		
+		IFrameLogin loginForm = new IFrameLogin();
+		this.desktopPane.add(loginForm);
+		loginForm.setVisible(true);
 	}
 
 }
