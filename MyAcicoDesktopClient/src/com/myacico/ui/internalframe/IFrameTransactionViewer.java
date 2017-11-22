@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.JInternalFrame;
@@ -28,14 +29,19 @@ import javax.swing.table.TableColumn;
 
 import org.jdesktop.swingx.JXDatePicker;
 
+import com.alee.laf.desktoppane.WebInternalFrame;
 import com.myacico.sql.Database;
 import com.myacico.ui.builder.UIBuilder;
 import com.myacico.ui.frame.DetailOrderFrame;
+import com.myacico.ui.frame.MainFrame;
+import com.myacico.util.HelperClass;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
@@ -49,7 +55,7 @@ public class IFrameTransactionViewer extends JInternalFrame {
 	private JCheckBox chckbxPendingTrans;
 	private JXDatePicker dtpFrom;
 	private JXDatePicker dtpTo;
-	private String baseSelectStatement = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction ORDER BY transaction_time DESC";
+	private String baseSelectStatement = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction WHERE payment_method = 'Bank Transfer' ORDER BY transaction_time DESC";
 	/**
 	 * Create the frame.
 	 */
@@ -72,6 +78,13 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		});
 		scrollPane.setViewportView(table);
 		new Thread(new DataLoader(this.baseSelectStatement)).start();
+	}
+	
+	public void LoadInitialData()
+	{
+		String loadDataQuery = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction WHERE payment_method = 'Bank Transfer' ORDER BY transaction_time DESC";
+		
+		new Thread(new DataLoader(loadDataQuery)).start();
 	}
 	
 	private JPanel CreateFilterPanel()
@@ -230,8 +243,8 @@ public class IFrameTransactionViewer extends JInternalFrame {
 					PreparedStatement stat = conn.prepareStatement(finalQuery);
 					stat.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
 					ResultSet rSet = stat.executeQuery();
-					DefaultTableModel model = UIBuilder.buildTableModel(rSet);
-					table.setModel(model);
+					HelperClass.transModelViewer = UIBuilder.buildTableModel(rSet);
+					table.setModel(HelperClass.transModelViewer);
 					rSet.close();
 					stat.close();
 					conn.close();
@@ -257,14 +270,25 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		// TODO Auto-generated method stub
 		if(chckbxTodayTrans.isSelected())
 		{
-			String selectQuery = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction WHERE transaction_time =? ORDER BY transaction_time DESC";
+			Calendar prevCal = Calendar.getInstance();
+			prevCal.add(Calendar.DATE, -1);
+			
+			Calendar nextCal = Calendar.getInstance();
+			nextCal.add(Calendar.DATE, 1);
+			
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			String prevDate = dateFormat.format(prevCal.getTime());
+			String nextDate = dateFormat.format(nextCal.getTime());
+			
+			String selectQuery = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction WHERE transaction_time >='" + prevDate + "' AND transaction_time <'" + nextDate +"' ORDER BY transaction_time DESC";
+			
 			Connection conn = Database.GetSQLConnection();
 			try {
-				PreparedStatement stat = conn.prepareStatement(selectQuery);
-				stat.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
-				ResultSet rSet = stat.executeQuery();
-				DefaultTableModel model = UIBuilder.buildTableModel(rSet);
-				table.setModel(model);
+				Statement stat = conn.createStatement();
+				//stat.setTimestamp(1, new Timestamp(System.currentTimeMillis()));
+				ResultSet rSet = stat.executeQuery(selectQuery);
+				HelperClass.transModelViewer = UIBuilder.buildTableModel(rSet);
+				table.setModel(HelperClass.transModelViewer);
 				rSet.close();
 				stat.close();
 				conn.close();
@@ -298,7 +322,7 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		{
 			Date startDate = dtpFrom.getDate();
 			Date endDate = dtpTo.getDate();
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 			String fullQuery = MessageFormat.format(selectQuery, "WHERE transaction_time >='" + formatter.format(startDate) + "' AND transaction_time <'" + formatter.format(endDate) + "' AND user_id=" + customerID);
 			new Thread(new DataLoader(fullQuery)).start();
 		}
@@ -322,7 +346,10 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		String orderID = target.getValueAt(row, 3).toString();
 		String invoiceNumber = target.getValueAt(row, 4).toString();
 		
+		MainFrame frame = (MainFrame)this.getTopLevelAncestor();
+		
 		DetailOrderFrame detailOrder = new DetailOrderFrame(transID, orderID, userID, invoiceNumber);
+		frame.desktopPane.add(detailOrder);
 		detailOrder.setVisible(true);
 	}
 	
@@ -345,14 +372,14 @@ public class IFrameTransactionViewer extends JInternalFrame {
 				{
 					Statement stat = conn.createStatement();
 					ResultSet rSet = stat.executeQuery(selectStatement);
-					DefaultTableModel model = UIBuilder.buildTableModel(rSet);
+					HelperClass.transModelViewer = UIBuilder.buildTableModel(rSet);
 					
 					SwingUtilities.invokeLater(new Runnable() {
 						
 						@Override
 						public void run() {
 							// TODO Auto-generated method stub
-							table.setModel(model);
+							table.setModel(HelperClass.transModelViewer);
 						}
 					});
 					

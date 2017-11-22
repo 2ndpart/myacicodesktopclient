@@ -17,7 +17,7 @@ public class Database {
 		try
 		{
 			DriverManager.registerDriver(new org.postgresql.Driver());
-			String url = "jdbc:postgresql://db.myacico.co.id:5432/idempiere-myacico";
+			String url = "jdbc:postgresql://db.myacico.co.id:5432/dev_myacico_new";
             	String user = "adempiere";
             	String pass = "adempiere";
             	conn = DriverManager.getConnection(url, user, pass);
@@ -97,7 +97,6 @@ public class Database {
 			Statement stat = conn.createStatement();
 			affectedRecord = stat.executeUpdate(query);
 			stat.close();
-			conn.close();
 		}
 		catch(Exception e)
 		{

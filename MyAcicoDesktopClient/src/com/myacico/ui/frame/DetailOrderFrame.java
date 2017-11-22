@@ -7,22 +7,45 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.jdesktop.swingx.JXDatePicker;
 
+import com.alee.laf.desktoppane.WebInternalFrame;
 import com.myacico.sql.Database;
+import com.myacico.ui.internalframe.IFrameLogin;
+import com.myacico.ui.internalframe.IFrameTransactionViewer;
+import com.myacico.util.HelperClass;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -39,7 +62,7 @@ import javax.swing.JTable;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class DetailOrderFrame extends JFrame {
+public class DetailOrderFrame extends JInternalFrame {
 
 	private JPanel contentPane;
 	String transID, orderID, customerID_order, invoiceNumber = "";
@@ -53,7 +76,7 @@ public class DetailOrderFrame extends JFrame {
 	private JTextArea txtShippingAddress;
 	private JLabel transferReceiptContainer;
 	private JTable table;
-	private final String baseDownloadURL = "http://api.myacico.co.id/myacico-service/GetDataFromServer";
+	private final String baseDownloadURL = "https://api.myacico.co.id/myacico-service/GetDataFromServer";
 	/**
 	 * Create the frame.
 	 */
@@ -62,11 +85,12 @@ public class DetailOrderFrame extends JFrame {
 		this.orderID = orderID;
 		this.customerID_order = customerID;
 		this.invoiceNumber = invoiceNumber;
-		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		//setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setClosable(true);
 		setBounds(100, 100, 856, 391);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
+		this.add(contentPane);
 		contentPane.setLayout(null);
 		
 		JLabel lblTransactionId = new JLabel("Transaction ID");
@@ -101,7 +125,7 @@ public class DetailOrderFrame extends JFrame {
 		contentPane.add(lblTransactionStatus);
 		
 		cbTransStatus = new JComboBox();
-		cbTransStatus.setModel(new DefaultComboBoxModel(new String[] {"Paid", "Verified", "Pending"}));
+		cbTransStatus.setModel(new DefaultComboBoxModel(new String[] {"PAID", "VERIFIED", "DELIVERED", "PENDING"}));
 		cbTransStatus.setBounds(153, 122, 130, 27);
 		contentPane.add(cbTransStatus);
 		
@@ -160,12 +184,70 @@ public class DetailOrderFrame extends JFrame {
 	
 	private void btnUpdateData_ActionPerformed(ActionEvent e)
 	{
-		String updateString = "UPDATE adempiere.app_transaction SET transaction_status ='PAID' WHERE user_id=" + this.customerID_order + " AND order_number ='" + this.orderID + "' AND invoice_number ='" + this.invoiceNumber + "'";
+		String updateString = "UPDATE adempiere.app_transaction SET transaction_status ='" + cbTransStatus.getSelectedItem().toString() + "' WHERE user_id=" + this.customerID_order + " AND order_number ='" + this.orderID + "'";
 		Connection conn = Database.GetSQLConnection();
 		int affectedRecord = Database.UpdateDataToServer(updateString, conn);
 		
 		if(affectedRecord > 0)
-			JOptionPane.showMessageDialog(this, "Data Updated");
+		{
+			String updateInvoice = "UPDATE adempiere.app_transaction SET invoice_number =(SELECT get_app_nextinvoice FROM adempiere.get_app_nextinvoice(1)) WHERE user_id=" + this.customerID_order + " AND order_number ='" + this.orderID + "'";
+			affectedRecord = Database.UpdateDataToServer(updateInvoice, conn);
+			
+			for(int i=0;i<HelperClass.transModelViewer.getRowCount();i++)
+			{
+				if(HelperClass.transModelViewer.getValueAt(i, 3).toString().equalsIgnoreCase(this.orderID))
+				{
+					HelperClass.transModelViewer.setValueAt("PAID", i, 5);
+					HelperClass.transModelViewer.fireTableDataChanged();
+					break;
+				}
+			}
+			
+			try {
+				conn.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			if (affectedRecord > 0)
+			{
+				//sending email to client using API
+				String jsonInput = "{\"orderId\":\"" + txtTransID.getText() + "\"}";
+				String urlTarget = "https://api.myacico.co.id/myacico-service/mail/sendInvoice";
+				String tokenVal = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYWlsQG1haWwuY29tIiwiYXVkIjoiQURNSU4tQUNDIiwianRpIjoiMjM0MiJ9.i-A1qHNcyoo2z-GTqgue5YKWdDi04qjWER_lDAkG07o";
+	            StringEntity requestEntity = new StringEntity(jsonInput, ContentType.APPLICATION_JSON);
+	            HttpPost postMethod = new HttpPost(urlTarget);
+	            postMethod.setEntity(requestEntity);
+	            postMethod.addHeader("token", tokenVal);
+	            HttpClient client = HttpClientBuilder.create().build();
+	            try {
+					HttpResponse response = client.execute(postMethod);
+					System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+					
+					BufferedReader rd = new BufferedReader(
+							new InputStreamReader(response.getEntity().getContent()));
+
+						StringBuffer result = new StringBuffer();
+						String line = "";
+						while ((line = rd.readLine()) != null) {
+							result.append(line);
+						}
+						System.out.println(result.toString());
+					if(response.getStatusLine().getStatusCode() == 200)
+					{
+						JOptionPane.showMessageDialog(this, "Data Updated");
+					}
+				} catch (ClientProtocolException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				//new IFrameTransactionViewer().LoadInitialData();
+			}
+		}
 		else
 			JOptionPane.showMessageDialog(this, "Error Updating Data. Please Try Again");
 	}
@@ -211,33 +293,39 @@ public class DetailOrderFrame extends JFrame {
 							txtShippingAddress.setText(shippingAddress);
 							
 							URL url = null;
+							URL imageNotFoundURL = null;
 							try {
-								url = new URL(baseDownloadURL + "?userid=" + customerID + "&orderid=" + orderID + "&invoiceid=" + invoiceID);
+								url = new URL(baseDownloadURL + "?userid=" + customerID + "&orderid=" + orderID);
+								imageNotFoundURL = new URL("https://storage.googleapis.com/myacicoidbucketmultiregional/image-not-found.png");
 							} catch (MalformedURLException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
 							}
+							
 							String tempImageLocation = "/image/";
-							File imageLocation = new File(tempImageLocation);
+							/*File imageLocation = new File(tempImageLocation);
 							
 							if(!imageLocation.exists())
-								imageLocation.mkdir();
+								imageLocation.mkdir();*/
 							
 							try {
-								File savedImage = new File(imageLocation, "image.jpeg");
-								FileUtils.copyURLToFile(url, savedImage);
+								/*File savedImage = new File(imageLocation, "image.jpeg");
+								FileUtils.copyURLToFile(url, savedImage);*/
 								
-								if(savedImage != null && savedImage.length() > 0 )
+								if(url != null)
 								{
-									BufferedImage image = ImageIO.read(savedImage);
+									BufferedImage image = ImageIO.read(url);
 									Image resizedImage = image.getScaledInstance(transferReceiptContainer.getWidth(), transferReceiptContainer.getHeight(), Image.SCALE_SMOOTH);
 									ImageIcon icon = new ImageIcon(resizedImage);
 									transferReceiptContainer.setIcon(icon);
 								}
 								else
 								{
-									FileUtils.copyURLToFile(new URL("https://storage.googleapis.com/myacicoidbucketmultiregional/image-not-found.png"), savedImage);
-									BufferedImage image = ImageIO.read(savedImage);
+									//FileUtils.copyURLToFile(new URL("https://storage.googleapis.com/myacicoidbucketmultiregional/image-not-found.png"), savedImage);
+									BufferedImage image = ImageIO.read(imageNotFoundURL);
 									Image resizedImage = image.getScaledInstance(transferReceiptContainer.getWidth(), transferReceiptContainer.getHeight(), Image.SCALE_SMOOTH);
 									ImageIcon icon = new ImageIcon(resizedImage);
 									transferReceiptContainer.setIcon(icon);
