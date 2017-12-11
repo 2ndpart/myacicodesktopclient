@@ -17,6 +17,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -61,6 +62,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.border.TitledBorder;
 
 public class DetailOrderFrame extends JInternalFrame {
 
@@ -87,10 +89,10 @@ public class DetailOrderFrame extends JInternalFrame {
 		this.invoiceNumber = invoiceNumber;
 		//setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.setClosable(true);
-		setBounds(100, 100, 856, 391);
+		setBounds(100, 100, 856, 583);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		this.add(contentPane);
+		getContentPane().add(contentPane);
 		contentPane.setLayout(null);
 		
 		JLabel lblTransactionId = new JLabel("Transaction ID");
@@ -173,6 +175,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		panel.setLayout(new BorderLayout(0, 0));
 		
 		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setViewportBorder(new TitledBorder(null, "Detail Order", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel.add(scrollPane);
 		
 		table = new JTable();
@@ -184,7 +187,7 @@ public class DetailOrderFrame extends JInternalFrame {
 	
 	private void btnUpdateData_ActionPerformed(ActionEvent e)
 	{
-		String updateString = "UPDATE adempiere.app_transaction SET transaction_status ='" + cbTransStatus.getSelectedItem().toString() + "' WHERE user_id=" + this.customerID_order + " AND order_number ='" + this.orderID + "'";
+		String updateString = "UPDATE adempiere.app_transaction SET transaction_status ='" + cbTransStatus.getSelectedItem().toString() + "', Transaction_status_code='2' WHERE user_id=" + this.customerID_order + " AND order_number ='" + this.orderID + "'";
 		Connection conn = Database.GetSQLConnection();
 		int affectedRecord = Database.UpdateDataToServer(updateString, conn);
 		
@@ -314,7 +317,7 @@ public class DetailOrderFrame extends JInternalFrame {
 							try {
 								/*File savedImage = new File(imageLocation, "image.jpeg");
 								FileUtils.copyURLToFile(url, savedImage);*/
-								
+								System.out.println("Image URL :  " + url);
 								if(url != null)
 								{
 									BufferedImage image = ImageIO.read(url);

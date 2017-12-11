@@ -17,7 +17,7 @@ public class Database {
 		try
 		{
 			DriverManager.registerDriver(new org.postgresql.Driver());
-			String url = "jdbc:postgresql://db.myacico.co.id:5432/dev_myacico_new";
+			String url = "jdbc:postgresql://db.myacico.co.id:5432/idempiere-myacico";
             	String user = "adempiere";
             	String pass = "adempiere";
             	conn = DriverManager.getConnection(url, user, pass);
@@ -106,4 +106,28 @@ public class Database {
 		return affectedRecord;
 	}
 	
+	public static String GetShippingForGudang(long id, Connection conn)
+	{
+		String addedQuery = "SELECT shipping_name ,shipping_address1, shipping_address2, shipping_region, shipping_city, shipping_distric, shipping_village, shipping_postal, shipping_phone1, shipping_phone2 FROM app_transaction WHERE transaction_id=" + id;
+		String shippingAddress = null;
+		try 
+		{
+			Statement stat = conn.createStatement();
+			ResultSet rSet = stat.executeQuery(addedQuery);			
+			while(rSet.next())
+			{
+				shippingAddress = rSet.getString("shipping_name") + "\n" + rSet.getString("shipping_address1") +
+									"\n" + rSet.getString("shipping_address1") + "\n" + rSet.getString("shipping_address2") +
+									"\n" + rSet.getString("shipping_region") + "\n" + rSet.getString("shipping_city") +
+									"\n" + rSet.getString("shipping_distric") + "\n" + rSet.getString("shipping_village") +
+									"\n" + rSet.getString("shipping_postal") + "\n" + rSet.getString("shipping_phone1") +
+									"\n" + rSet.getString("shipping_phone2") ;
+			}
+		}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
+		return shippingAddress;
+	}
 }

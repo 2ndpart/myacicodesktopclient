@@ -16,6 +16,7 @@ import javax.swing.border.EmptyBorder;
 
 import com.alee.laf.WebLookAndFeel;
 import com.myacico.ui.internalframe.IFrameLogin;
+import com.myacico.ui.internalframe.IFramePackagingViewer;
 import com.myacico.ui.internalframe.IFrameTransactionViewer;
 
 import javax.swing.JMenuBar;
@@ -140,6 +141,16 @@ public class MainFrame extends JFrame {
 		loginForm.setVisible(true);
 		
 		fileMenu.setEnabled(false);
+		
+		JMenuItem mntmWarehouse = new JMenuItem("Warehouse");
+		mntmWarehouse.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				IFramePackagingViewer packagingViewer = new IFramePackagingViewer();
+				desktopPane.add(packagingViewer);
+				packagingViewer.setVisible(true);
+			}
+		});
+		fileMenu.add(mntmWarehouse);
 		
 		setLookAndFeel(nimbusLFString);
 	}
