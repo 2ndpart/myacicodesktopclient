@@ -108,7 +108,7 @@ public class Database {
 	
 	public static String GetShippingForGudang(long id, Connection conn)
 	{
-		String addedQuery = "SELECT shipping_name ,shipping_address1, shipping_address2, shipping_region, shipping_city, shipping_distric, shipping_village, shipping_postal, shipping_phone1, shipping_phone2 FROM app_transaction WHERE transaction_id=" + id;
+		String addedQuery = "SELECT shipping_name ,shipping_address1, shipping_address2, shipping_region, shipping_city, shipping_district, shipping_village, shipping_postal, shipping_phone1, shipping_phone2 FROM app_transaction WHERE transaction_id=" + id;
 		String shippingAddress = null;
 		try 
 		{
@@ -119,7 +119,7 @@ public class Database {
 				shippingAddress = rSet.getString("shipping_name") + "\n" + rSet.getString("shipping_address1") +
 									"\n" + rSet.getString("shipping_address1") + "\n" + rSet.getString("shipping_address2") +
 									"\n" + rSet.getString("shipping_region") + "\n" + rSet.getString("shipping_city") +
-									"\n" + rSet.getString("shipping_distric") + "\n" + rSet.getString("shipping_village") +
+									"\n" + rSet.getString("shipping_district") + "\n" + rSet.getString("shipping_village") +
 									"\n" + rSet.getString("shipping_postal") + "\n" + rSet.getString("shipping_phone1") +
 									"\n" + rSet.getString("shipping_phone2") ;
 			}
@@ -129,5 +129,27 @@ public class Database {
 			ex.printStackTrace();
 		}
 		return shippingAddress;
+	}
+	
+	public static String GetBillingAddressForGudang(long id, Connection conn)
+	{
+		String billingAddress = null;
+		String addedQuery = "SELECT billing_name, billing_address1, billing_address2, billing_country, billing_region, billing_city, billing_district, billing_village, billing_postal, billing_phone1, billing_phone2 FROM app_transaction WHERE transaction_id=" + id;
+		try {
+			Statement stat = conn.createStatement();
+			ResultSet rSet = stat.executeQuery(addedQuery);
+			
+			while(rSet.next())
+			{
+				billingAddress = rSet.getString("billing_name") +
+								 "\n" + rSet.getString("billing_address1") + "\n" + rSet.getString("billing_address2") +
+								 "\n" + rSet.getString("billing_country") + " " + rSet.getString("billing_region") + " " + rSet.getString("billing_city") +
+								 "\n" + rSet.getString("billing_district") + " " + rSet.getString("billing_village") + " " + rSet.getString("billing_postal") +
+								 "\n" + rSet.getString("billing_phone1") + " \\ " + rSet.getString("billing_phone2");
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return billingAddress;
 	}
 }

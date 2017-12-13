@@ -56,6 +56,7 @@ public class IFrameTransactionViewer extends JInternalFrame {
 	private JXDatePicker dtpFrom;
 	private JXDatePicker dtpTo;
 	private String baseSelectStatement = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction WHERE payment_method = 'Bank Transfer' ORDER BY transaction_time DESC";
+	private JCheckBox chckbxCreditCard;
 	/**
 	 * Create the frame.
 	 */
@@ -115,7 +116,7 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		filterPanel.add(txtCustID, gbc_txtCustID);
 		txtCustID.setColumns(10);
 		
-		chckbxPendingTrans = new JCheckBox("Pending Trans");
+		chckbxPendingTrans = new JCheckBox("Pending Transaction (Transfer)");
 		chckbxPendingTrans.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				chckbxPendingTrans_ActionPerformed(arg0);
@@ -127,6 +128,17 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		gbc_chckbxPendingTrans.gridx = 5;
 		gbc_chckbxPendingTrans.gridy = 0;
 		filterPanel.add(chckbxPendingTrans, gbc_chckbxPendingTrans);
+		chckbxCreditCard = new JCheckBox("Credit Card Transaction");
+		chckbxCreditCard.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				chckbxCreditCard_clicked(arg0);
+			}
+		});
+		GridBagConstraints gbc_chckbxCreditCard = new GridBagConstraints();
+		gbc_chckbxCreditCard.insets = new Insets(0, 0, 5, 0);
+		gbc_chckbxCreditCard.gridx = 7;
+		gbc_chckbxCreditCard.gridy = 0;
+		filterPanel.add(chckbxCreditCard, gbc_chckbxCreditCard);
 		
 		JLabel lblNewLabel_1 = new JLabel("Order ID");
 		GridBagConstraints gbc_lblNewLabel_1 = new GridBagConstraints();
@@ -158,6 +170,7 @@ public class IFrameTransactionViewer extends JInternalFrame {
 			}
 		});
 		GridBagConstraints gbc_chckbxTodayTrans = new GridBagConstraints();
+		gbc_chckbxTodayTrans.anchor = GridBagConstraints.WEST;
 		gbc_chckbxTodayTrans.insets = new Insets(0, 0, 5, 5);
 		gbc_chckbxTodayTrans.gridx = 5;
 		gbc_chckbxTodayTrans.gridy = 1;
@@ -228,6 +241,28 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		return filterPanel;
 	}
 	
+	protected void chckbxCreditCard_clicked(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+		String selectQuery = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction {0} {1} ORDER BY transaction_time DESC";
+		if(chckbxCreditCard.isSelected())
+		{
+			if(chckbxPendingTrans.isSelected())
+			{
+				selectQuery = MessageFormat.format(selectQuery, "WHERE transaction_status ='PENDING'","AND payment_method='Credit Card'");
+			}
+			else
+			{
+				selectQuery = MessageFormat.format(selectQuery, "WHERE payment_method='Credit Card'","");
+			}
+			new Thread(new DataLoader(selectQuery)).start();
+		}
+		else
+		{
+			new Thread(new DataLoader(this.baseSelectStatement)).start();
+		}
+	}
+
 	protected void chckbxPendingTrans_ActionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
 		String selectQuery = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction {0} {1} ORDER BY transaction_time DESC";
@@ -310,30 +345,36 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		String orderID = txtOrderID.getText();
 		Date dateFrom = dtpFrom.getDate();
 		Date dateTo = dtpTo.getDate();
-		
+		String fullQuery = "";
 		String selectQuery = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction {0} ORDER BY transaction_time DESC"; 
 		
+		if(customerID.length() == 0 && orderID.length() == 0)
+		{
+			fullQuery = MessageFormat.format(selectQuery, "");
+		}
 		if(customerID != null && customerID.length() > 0)
 		{
-			String fullQuery = MessageFormat.format(selectQuery, "WHERE user_id=" + customerID);
-			new Thread(new DataLoader(fullQuery)).start();
+			fullQuery = MessageFormat.format(selectQuery, "WHERE user_id=" + customerID);
+		}
+		else if(orderID != null && orderID.length() > 0)
+		{
+			fullQuery = MessageFormat.format(selectQuery, "WHERE order_number='" + orderID + "'");
 		}
 		else if(dateFrom != null && dateTo != null && customerID.length() > 0)
 		{
 			Date startDate = dtpFrom.getDate();
 			Date endDate = dtpTo.getDate();
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			String fullQuery = MessageFormat.format(selectQuery, "WHERE transaction_time >='" + formatter.format(startDate) + "' AND transaction_time <'" + formatter.format(endDate) + "' AND user_id=" + customerID);
-			new Thread(new DataLoader(fullQuery)).start();
+			fullQuery = MessageFormat.format(selectQuery, "WHERE transaction_time >='" + formatter.format(startDate) + "' AND transaction_time <'" + formatter.format(endDate) + "' AND user_id=" + customerID);
 		}
 		else if (dateFrom != null && dateTo != null && customerID.length() == 0)
 		{
 			Date startDate = dtpFrom.getDate();
 			Date endDate = dtpTo.getDate();
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			String fullQuery = MessageFormat.format(selectQuery, "WHERE transaction_time >='" + formatter.format(startDate) + "' AND transaction_time <='" + formatter.format(endDate) + "'");
-			new Thread(new DataLoader(fullQuery)).start();
+			fullQuery = MessageFormat.format(selectQuery, "WHERE transaction_time >='" + formatter.format(startDate) + "' AND transaction_time <='" + formatter.format(endDate) + "'");
 		}
+		new Thread(new DataLoader(fullQuery)).start();
 	}
 
 	private void tableCellClicked(MouseEvent e)

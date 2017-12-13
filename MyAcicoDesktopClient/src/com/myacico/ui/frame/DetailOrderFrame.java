@@ -47,6 +47,7 @@ import com.myacico.sql.Database;
 import com.myacico.ui.internalframe.IFrameLogin;
 import com.myacico.ui.internalframe.IFrameTransactionViewer;
 import com.myacico.util.HelperClass;
+import com.myacico.util.TransactionDetail;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -63,6 +64,7 @@ import javax.swing.JTable;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.border.TitledBorder;
+import javax.swing.JEditorPane;
 
 public class DetailOrderFrame extends JInternalFrame {
 
@@ -77,8 +79,8 @@ public class DetailOrderFrame extends JInternalFrame {
 	private JTextArea txtBillingAddress;
 	private JTextArea txtShippingAddress;
 	private JLabel transferReceiptContainer;
-	private JTable table;
 	private final String baseDownloadURL = "https://api.myacico.co.id/myacico-service/GetDataFromServer";
+	private JEditorPane editorPane;
 	/**
 	 * Create the frame.
 	 */
@@ -87,6 +89,8 @@ public class DetailOrderFrame extends JInternalFrame {
 		this.orderID = orderID;
 		this.customerID_order = customerID;
 		this.invoiceNumber = invoiceNumber;
+		
+		editorPane = new JEditorPane();
 		//setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.setClosable(true);
 		setBounds(100, 100, 856, 583);
@@ -178,11 +182,11 @@ public class DetailOrderFrame extends JInternalFrame {
 		scrollPane.setViewportBorder(new TitledBorder(null, "Detail Order", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		panel.add(scrollPane);
 		
-		table = new JTable();
-		scrollPane.setViewportView(table);
+		scrollPane.setViewportView(editorPane);
 		
 		DataLoader loader = new DataLoader(this.transID, this.customerID_order, this.orderID, this.invoiceNumber);
 		new Thread(loader).start();
+		loadTransactionDetail();
 	}
 	
 	private void btnUpdateData_ActionPerformed(ActionEvent e)
@@ -255,6 +259,25 @@ public class DetailOrderFrame extends JInternalFrame {
 			JOptionPane.showMessageDialog(this, "Error Updating Data. Please Try Again");
 	}
 	
+	void loadTransactionDetail()
+	{
+		TransactionDetail transDetail;
+		try {
+			transDetail = HelperClass.getiInvoiceDetail(Long.parseLong(this.transID));
+			String detail = transDetail.getDetail();
+			editorPane.setContentType("text/html");
+			detail = "<html><body>" + detail + "</body></html>";
+			editorPane.setText(detail);
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
 	private class DataLoader implements Runnable
 	{
 		String transID, orderID, customerID, invoiceID = "";
@@ -281,8 +304,8 @@ public class DetailOrderFrame extends JInternalFrame {
 				while(rSet.next())
 				{
 					String customerName = Database.GetStringFromDB(getNameQuery, conn);
-					String shippingAddress = Database.GetShippingAddress(rSet.getString("shipping_address"), conn);
-					String billingAddress = Database.GetBillingAddress(rSet.getString("billing_address"), conn);
+					String shippingAddress = Database.GetShippingForGudang(Long.parseLong(transID), conn);
+					String billingAddress = Database.GetBillingAddressForGudang(Long.parseLong(transID), conn);
 					
 					SwingUtilities.invokeLater(new Runnable() {
 						
@@ -321,9 +344,19 @@ public class DetailOrderFrame extends JInternalFrame {
 								if(url != null)
 								{
 									BufferedImage image = ImageIO.read(url);
-									Image resizedImage = image.getScaledInstance(transferReceiptContainer.getWidth(), transferReceiptContainer.getHeight(), Image.SCALE_SMOOTH);
-									ImageIcon icon = new ImageIcon(resizedImage);
-									transferReceiptContainer.setIcon(icon);
+									try
+									{
+										Image resizedImage = image.getScaledInstance(transferReceiptContainer.getWidth(), transferReceiptContainer.getHeight(), Image.SCALE_SMOOTH);
+										ImageIcon icon = new ImageIcon(resizedImage);
+										transferReceiptContainer.setIcon(icon);
+									}
+									catch(Exception ex)
+									{
+										BufferedImage tempImage = ImageIO.read(imageNotFoundURL);
+										Image resizedImage = tempImage.getScaledInstance(transferReceiptContainer.getWidth(), transferReceiptContainer.getHeight(), Image.SCALE_SMOOTH);
+										ImageIcon icon = new ImageIcon(resizedImage);
+										transferReceiptContainer.setIcon(icon);
+									}
 								}
 								else
 								{
@@ -333,6 +366,7 @@ public class DetailOrderFrame extends JInternalFrame {
 									ImageIcon icon = new ImageIcon(resizedImage);
 									transferReceiptContainer.setIcon(icon);
 								}
+								loadTransactionDetail();
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
