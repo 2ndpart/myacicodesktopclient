@@ -12,8 +12,10 @@ import org.jdesktop.swingx.JXImagePanel;
 
 import com.alee.laf.desktoppane.WebInternalFrame;
 import com.myacico.ui.frame.MainFrame;
+import com.myacico.util.HelperClass;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.imageio.ImageIO;
@@ -30,8 +32,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class IFrameLogin extends WebInternalFrame {
-	private JTextField textField;
-	private JPasswordField passwordField;
+	private JTextField txtUserName;
+	private JPasswordField txtPassword;
 	JLabel imageLabel = new JLabel("");
 	/**
 	 * Create the frame.
@@ -60,15 +62,15 @@ public class IFrameLogin extends WebInternalFrame {
 		gbc_lblNewLabel.gridy = 3;
 		getContentPane().add(lblNewLabel, gbc_lblNewLabel);
 		
-		textField = new JTextField();
-		GridBagConstraints gbc_textField = new GridBagConstraints();
-		gbc_textField.anchor = GridBagConstraints.NORTH;
-		gbc_textField.fill = GridBagConstraints.HORIZONTAL;
-		gbc_textField.insets = new Insets(0, 0, 5, 5);
-		gbc_textField.gridx = 2;
-		gbc_textField.gridy = 3;
-		getContentPane().add(textField, gbc_textField);
-		textField.setColumns(10);
+		txtUserName = new JTextField();
+		GridBagConstraints gbc_txtUserName = new GridBagConstraints();
+		gbc_txtUserName.anchor = GridBagConstraints.NORTH;
+		gbc_txtUserName.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtUserName.insets = new Insets(0, 0, 5, 5);
+		gbc_txtUserName.gridx = 2;
+		gbc_txtUserName.gridy = 3;
+		getContentPane().add(txtUserName, gbc_txtUserName);
+		txtUserName.setColumns(10);
 		
 		JLabel lblPassword = new JLabel("Password");
 		GridBagConstraints gbc_lblPassword = new GridBagConstraints();
@@ -78,14 +80,14 @@ public class IFrameLogin extends WebInternalFrame {
 		gbc_lblPassword.gridy = 4;
 		getContentPane().add(lblPassword, gbc_lblPassword);
 		
-		passwordField = new JPasswordField();
-		GridBagConstraints gbc_passwordField = new GridBagConstraints();
-		gbc_passwordField.anchor = GridBagConstraints.NORTH;
-		gbc_passwordField.fill = GridBagConstraints.HORIZONTAL;
-		gbc_passwordField.insets = new Insets(0, 0, 5, 5);
-		gbc_passwordField.gridx = 2;
-		gbc_passwordField.gridy = 4;
-		getContentPane().add(passwordField, gbc_passwordField);
+		txtPassword = new JPasswordField();
+		GridBagConstraints gbc_txtPassword = new GridBagConstraints();
+		gbc_txtPassword.anchor = GridBagConstraints.NORTH;
+		gbc_txtPassword.fill = GridBagConstraints.HORIZONTAL;
+		gbc_txtPassword.insets = new Insets(0, 0, 5, 5);
+		gbc_txtPassword.gridx = 2;
+		gbc_txtPassword.gridy = 4;
+		getContentPane().add(txtPassword, gbc_txtPassword);
 		
 		JButton btnLogin = new JButton("");
 		btnLogin.setIcon(new ImageIcon(IFrameLogin.class.getResource("/com/myacico/ui/image/login.png")));
@@ -107,10 +109,39 @@ public class IFrameLogin extends WebInternalFrame {
 	
 	protected void btnLogin_actionPerformed(ActionEvent arg0) {
 		// TODO Auto-generated method stub
-		MainFrame frame = (MainFrame)this.getTopLevelAncestor();
-		frame.fileMenu.setEnabled(true);
-		
-		this.dispose();
+		String userName = txtUserName.getText();
+		String password = txtPassword.getText();
+		boolean isLogin = false;
+		if(userName.equalsIgnoreCase("Finance") && password.equalsIgnoreCase("finance2017&"))
+		{
+			HelperClass.loginAs = "Finance";
+			isLogin = true;
+		}
+		if(userName.equalsIgnoreCase("Warehouse") && password.equalsIgnoreCase("warehouse123#"))
+		{
+			HelperClass.loginAs = "Warehouse";
+			isLogin = true;
+		}
+		if(userName.equalsIgnoreCase("CS") && password.equalsIgnoreCase("csmyacico6^1!"))
+		{
+			HelperClass.loginAs = "CS";
+			isLogin = true;
+		}
+		if(userName.equalsIgnoreCase("it") && password.equalsIgnoreCase("it123"))
+		{
+			HelperClass.loginAs = "IT";
+			isLogin = true;
+		}
+		if(isLogin)
+		{
+			MainFrame frame = (MainFrame)this.getTopLevelAncestor();
+			frame.fileMenu.setEnabled(true);
+			this.dispose();
+		}
+		else 
+		{
+			JOptionPane.showMessageDialog(this, "Please login using correct credential");
+		}	
 	}
 
 	public Image GetAcicoLogo()

@@ -17,7 +17,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Iterator;
 
 import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
@@ -57,6 +60,7 @@ import javax.swing.JComboBox;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
@@ -81,6 +85,7 @@ public class DetailOrderFrame extends JInternalFrame {
 	private JLabel transferReceiptContainer;
 	private final String baseDownloadURL = "https://api.myacico.co.id/myacico-service/GetDataFromServer";
 	private JEditorPane editorPane;
+	private JTextField imgUrl;
 	/**
 	 * Create the frame.
 	 */
@@ -91,6 +96,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		this.invoiceNumber = invoiceNumber;
 		
 		editorPane = new JEditorPane();
+		editorPane.setEditable(false);
 		//setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.setClosable(true);
 		setBounds(100, 100, 856, 583);
@@ -131,7 +137,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(lblTransactionStatus);
 		
 		cbTransStatus = new JComboBox();
-		cbTransStatus.setModel(new DefaultComboBoxModel(new String[] {"PAID", "VERIFIED", "DELIVERED", "PENDING"}));
+		cbTransStatus.setModel(new DefaultComboBoxModel(new String[] {"PAID", "VERIFIED", "DELIVERED", "PENDING", "CANCELED"}));
 		cbTransStatus.setBounds(153, 122, 130, 27);
 		contentPane.add(cbTransStatus);
 		
@@ -156,7 +162,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(lblShippingAddress);
 		
 		transferReceiptContainer = new JLabel("");
-		transferReceiptContainer.setBounds(488, 27, 343, 321);
+		transferReceiptContainer.setBounds(503, 27, 305, 295);
 		contentPane.add(transferReceiptContainer);
 		
 		btnUpdateData = new JButton("Update Data");
@@ -184,9 +190,19 @@ public class DetailOrderFrame extends JInternalFrame {
 		
 		scrollPane.setViewportView(editorPane);
 		
+		imgUrl = new JTextField();
+		imgUrl.setBounds(582, 329, 146, 26);
+		contentPane.add(imgUrl);
+		imgUrl.setColumns(10);
+		
 		DataLoader loader = new DataLoader(this.transID, this.customerID_order, this.orderID, this.invoiceNumber);
 		new Thread(loader).start();
 		loadTransactionDetail();
+		
+		if(HelperClass.loginAs.equalsIgnoreCase("CS"))
+		{
+			btnUpdateData.setEnabled(false);
+		}
 	}
 	
 	private void btnUpdateData_ActionPerformed(ActionEvent e)
@@ -218,40 +234,75 @@ public class DetailOrderFrame extends JInternalFrame {
 			}
 			if (affectedRecord > 0)
 			{
-				//sending email to client using API
-				String jsonInput = "{\"orderId\":\"" + txtTransID.getText() + "\"}";
-				String urlTarget = "https://api.myacico.co.id/myacico-service/mail/sendInvoice";
-				String tokenVal = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYWlsQG1haWwuY29tIiwiYXVkIjoiQURNSU4tQUNDIiwianRpIjoiMjM0MiJ9.i-A1qHNcyoo2z-GTqgue5YKWdDi04qjWER_lDAkG07o";
-	            StringEntity requestEntity = new StringEntity(jsonInput, ContentType.APPLICATION_JSON);
-	            HttpPost postMethod = new HttpPost(urlTarget);
-	            postMethod.setEntity(requestEntity);
-	            postMethod.addHeader("token", tokenVal);
-	            HttpClient client = HttpClientBuilder.create().build();
-	            try {
-					HttpResponse response = client.execute(postMethod);
-					System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
-					
-					BufferedReader rd = new BufferedReader(
-							new InputStreamReader(response.getEntity().getContent()));
-
-						StringBuffer result = new StringBuffer();
-						String line = "";
-						while ((line = rd.readLine()) != null) {
-							result.append(line);
+				if(cbTransStatus.getSelectedItem().toString().equalsIgnoreCase("CANCELLED"))
+				{
+					//sending payment confirmation email to client using API
+					String urlTarget = "https://api.myacico.co.id/myacico-service/mail/sendInvoice";
+					String tokenVal = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYWlsQG1haWwuY29tIiwiYXVkIjoiQURNSU4tQUNDIiwianRpIjoiMjM0MiJ9.i-A1qHNcyoo2z-GTqgue5YKWdDi04qjWER_lDAkG07o";
+					HttpPost postMethod = new HttpPost(urlTarget);
+					postMethod.addHeader("token", tokenVal);
+					HttpClient client = HttpClientBuilder.create().build();
+					try {
+						HttpResponse response = client.execute(postMethod);
+						System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+						
+						BufferedReader rd = new BufferedReader(
+								new InputStreamReader(response.getEntity().getContent()));
+	
+							StringBuffer result = new StringBuffer();
+							String line = "";
+							while ((line = rd.readLine()) != null) {
+								result.append(line);
+							}
+							System.out.println(result.toString());
+						if(response.getStatusLine().getStatusCode() == 200)
+						{
+							JOptionPane.showMessageDialog(this, "Data Updated");
 						}
-						System.out.println(result.toString());
-					if(response.getStatusLine().getStatusCode() == 200)
-					{
-						JOptionPane.showMessageDialog(this, "Data Updated");
+					} catch (ClientProtocolException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
 					}
-				} catch (ClientProtocolException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
 				}
-				
+				else
+				{
+					//sending payment confirmation email to client using API
+					String jsonInput = "{\"orderId\":\"" + txtTransID.getText() + "\"}";
+					String urlTarget = "https://api.myacico.co.id/myacico-service/mail/sendInvoice";
+					String tokenVal = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYWlsQG1haWwuY29tIiwiYXVkIjoiQURNSU4tQUNDIiwianRpIjoiMjM0MiJ9.i-A1qHNcyoo2z-GTqgue5YKWdDi04qjWER_lDAkG07o";
+		            StringEntity requestEntity = new StringEntity(jsonInput, ContentType.APPLICATION_JSON);
+		            HttpPost postMethod = new HttpPost(urlTarget);
+		            postMethod.setEntity(requestEntity);
+		            postMethod.addHeader("token", tokenVal);
+		            HttpClient client = HttpClientBuilder.create().build();
+		            try {
+						HttpResponse response = client.execute(postMethod);
+						System.out.println("Response Code : " + response.getStatusLine().getStatusCode());
+						
+						BufferedReader rd = new BufferedReader(
+								new InputStreamReader(response.getEntity().getContent()));
+	
+							StringBuffer result = new StringBuffer();
+							String line = "";
+							while ((line = rd.readLine()) != null) {
+								result.append(line);
+							}
+							System.out.println(result.toString());
+						if(response.getStatusLine().getStatusCode() == 200)
+						{
+							JOptionPane.showMessageDialog(this, "Data Updated");
+						}
+					} catch (ClientProtocolException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 				//new IFrameTransactionViewer().LoadInitialData();
 			}
 		}
@@ -263,19 +314,20 @@ public class DetailOrderFrame extends JInternalFrame {
 	{
 		TransactionDetail transDetail;
 		try {
-			transDetail = HelperClass.getiInvoiceDetail(Long.parseLong(this.transID));
+			/*transDetail = HelperClass.getiInvoiceDetail(Long.parseLong(this.transID));
 			String detail = transDetail.getDetail();
 			editorPane.setContentType("text/html");
 			detail = "<html><body>" + detail + "</body></html>";
-			editorPane.setText(detail);
+			editorPane.setText(detail);*/
+			transDetail = HelperClass.GetTransactionDetail(this.orderID);
+			String itemOrderLine = transDetail.getDetail();
+			editorPane.setContentType("text/html");
+			itemOrderLine = "<html><body>" + itemOrderLine + "</body></html>";
+			editorPane.setText(itemOrderLine);
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		} 
 	}
 	
 	private class DataLoader implements Runnable
@@ -306,7 +358,8 @@ public class DetailOrderFrame extends JInternalFrame {
 					String customerName = Database.GetStringFromDB(getNameQuery, conn);
 					String shippingAddress = Database.GetShippingForGudang(Long.parseLong(transID), conn);
 					String billingAddress = Database.GetBillingAddressForGudang(Long.parseLong(transID), conn);
-					
+					SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+					String dateTime = formatter.format(rSet.getTimestamp("transaction_time"));
 					SwingUtilities.invokeLater(new Runnable() {
 						
 						@Override
@@ -314,6 +367,7 @@ public class DetailOrderFrame extends JInternalFrame {
 							// TODO Auto-generated method stub
 							txtTransID.setText(orderID);
 							txtCustID.setText(customerID);
+							txtTransTime.setText(dateTime);
 							txtCustName.setText(customerName);
 							txtBillingAddress.setText(billingAddress);
 							txtShippingAddress.setText(shippingAddress);
@@ -341,8 +395,8 @@ public class DetailOrderFrame extends JInternalFrame {
 								/*File savedImage = new File(imageLocation, "image.jpeg");
 								FileUtils.copyURLToFile(url, savedImage);*/
 								System.out.println("Image URL :  " + url);
-								if(url != null)
-								{
+								imgUrl.setText(url.toExternalForm());
+								if(url != null){
 									BufferedImage image = ImageIO.read(url);
 									try
 									{

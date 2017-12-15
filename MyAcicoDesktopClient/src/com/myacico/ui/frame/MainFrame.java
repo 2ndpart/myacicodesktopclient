@@ -18,6 +18,7 @@ import com.alee.laf.WebLookAndFeel;
 import com.myacico.ui.internalframe.IFrameLogin;
 import com.myacico.ui.internalframe.IFramePackagingViewer;
 import com.myacico.ui.internalframe.IFrameTransactionViewer;
+import com.myacico.util.HelperClass;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -85,7 +86,7 @@ public class MainFrame extends JFrame {
 		fileMenu.add(menuItemViewTrans);
 		
 		JMenuItem menuItemViewB2BReg = new JMenuItem("B2B Registration Approval");
-		fileMenu.add(menuItemViewB2BReg);
+		//fileMenu.add(menuItemViewB2BReg);
 		
 		JMenu mnLookAndFeel = new JMenu("Look And Feel");
 		menuBar.add(mnLookAndFeel);

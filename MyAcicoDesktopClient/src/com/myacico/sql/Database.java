@@ -152,4 +152,11 @@ public class Database {
 		}
 		return billingAddress;
 	}
+	
+	public static String GetAWBForGudang(long transID)
+	{
+		String awbNumber = "";
+		
+		return awbNumber;
+	}
 }
