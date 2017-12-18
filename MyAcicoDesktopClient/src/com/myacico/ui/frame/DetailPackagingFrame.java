@@ -52,6 +52,7 @@ public class DetailPackagingFrame extends JFrame {
 	private JTextPane billingInfo = new JTextPane();
 	private JTextField txtAwbNumber;
 	private JTextField txtShipmentCharge;
+	private JTextField txtOrderNumber;
 	/**
 	 * Create the frame.
 	 */
@@ -76,6 +77,9 @@ public class DetailPackagingFrame extends JFrame {
 		
 		shippingInfoPanel.add(shippingInfo, BorderLayout.CENTER);
 		
+		JScrollPane scrollPane = new JScrollPane();
+		shippingInfoPanel.add(scrollPane, BorderLayout.WEST);
+		
 		JPanel billingInfoPanel = new JPanel();
 		billingInfoPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Billing Address Information", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		billingInfoPanel.setBounds(309, 20, 281, 279);
@@ -83,6 +87,9 @@ public class DetailPackagingFrame extends JFrame {
 		billingInfoPanel.setLayout(new BorderLayout(0, 0));
 		
 		billingInfoPanel.add(billingInfo, BorderLayout.CENTER);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		billingInfoPanel.add(scrollPane_1, BorderLayout.WEST);
 		
 		JButton btnShip = new JButton("Send Item");
 		btnShip.addActionListener(new ActionListener() {
@@ -120,6 +127,16 @@ public class DetailPackagingFrame extends JFrame {
 		lblOngkir.setBounds(612, 197, 113, 24);
 		panel.add(lblOngkir);
 		
+		JLabel lblOrderNumber = new JLabel("Order Number");
+		lblOrderNumber.setBounds(612, 167, 113, 24);
+		panel.add(lblOrderNumber);
+		
+		txtOrderNumber = new JTextField();
+		txtOrderNumber.setBounds(728, 165, 148, 26);
+		panel.add(txtOrderNumber);
+		txtOrderNumber.setColumns(10);
+		txtOrderNumber.setText(orderNumber);
+		
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Order Line Item", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		contentPane.add(panel_1);
@@ -130,6 +147,9 @@ public class DetailPackagingFrame extends JFrame {
 		this.transId = transID;
 		this.orderNumber = orderNumber;
 		editorPane.setEditable(false);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		panel_1.add(scrollPane_2, BorderLayout.WEST);
 		loadTransactionInfo();
 		loadShippingAddress();
 		loadBillingAddress();

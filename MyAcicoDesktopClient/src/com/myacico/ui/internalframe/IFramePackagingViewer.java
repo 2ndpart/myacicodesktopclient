@@ -161,6 +161,9 @@ public class IFramePackagingViewer extends JInternalFrame {
 		});
 		scrollPane.setViewportView(table);
 		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane.setRowHeaderView(scrollPane_1);
+		
 		LoadTable();
 	} 
 	

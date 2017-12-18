@@ -26,12 +26,7 @@ import javax.swing.JFrame;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+
 
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpResponse;
@@ -69,6 +64,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.border.TitledBorder;
 import javax.swing.JEditorPane;
+import javax.swing.JTabbedPane;
 
 public class DetailOrderFrame extends JInternalFrame {
 
@@ -86,6 +82,10 @@ public class DetailOrderFrame extends JInternalFrame {
 	private final String baseDownloadURL = "https://api.myacico.co.id/myacico-service/GetDataFromServer";
 	private JEditorPane editorPane;
 	private JTextField imgUrl;
+	private JScrollPane scrollPane_2;
+	private JScrollPane scrollPane_3;
+	private JScrollPane scrollPane_4;
+	private JScrollPane scrollPane_5;
 	/**
 	 * Create the frame.
 	 */
@@ -145,17 +145,29 @@ public class DetailOrderFrame extends JInternalFrame {
 		lblBillingAddress.setBounds(6, 158, 118, 16);
 		contentPane.add(lblBillingAddress);
 		
+		scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(153, 158, 288, 90);
+		contentPane.add(scrollPane_2);
+		
 		txtBillingAddress = new JTextArea();
+		scrollPane_2.setViewportView(txtBillingAddress);
 		txtBillingAddress.setWrapStyleWord(true);
 		txtBillingAddress.setLineWrap(true);
-		txtBillingAddress.setBounds(153, 158, 288, 90);
-		contentPane.add(txtBillingAddress);
+		
+		scrollPane_3 = new JScrollPane();
+		scrollPane_2.setRowHeaderView(scrollPane_3);
+		
+		JScrollPane scrollPane_7 = new JScrollPane();
+		scrollPane_7.setBounds(153, 258, 288, 90);
+		contentPane.add(scrollPane_7);
 		
 		txtShippingAddress = new JTextArea();
+		scrollPane_7.setViewportView(txtShippingAddress);
 		txtShippingAddress.setWrapStyleWord(true);
 		txtShippingAddress.setLineWrap(true);
-		txtShippingAddress.setBounds(153, 258, 288, 90);
-		contentPane.add(txtShippingAddress);
+		
+		JScrollPane scrollPane_8 = new JScrollPane();
+		scrollPane_7.setRowHeaderView(scrollPane_8);
 		
 		JLabel lblShippingAddress = new JLabel("Shipping Address");
 		lblShippingAddress.setBounds(6, 258, 118, 16);
@@ -190,10 +202,33 @@ public class DetailOrderFrame extends JInternalFrame {
 		
 		scrollPane.setViewportView(editorPane);
 		
+		JScrollPane scrollPane_9 = new JScrollPane();
+		scrollPane.setRowHeaderView(scrollPane_9);
+		
 		imgUrl = new JTextField();
 		imgUrl.setBounds(582, 329, 146, 26);
 		contentPane.add(imgUrl);
 		imgUrl.setColumns(10);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(262, 221, 2, 2);
+		contentPane.add(scrollPane_1);
+		
+		scrollPane_4 = new JScrollPane();
+		scrollPane_4.setBounds(153, 260, 2, 88);
+		contentPane.add(scrollPane_4);
+		
+		scrollPane_5 = new JScrollPane();
+		scrollPane_5.setBounds(213, 310, 2, 2);
+		contentPane.add(scrollPane_5);
+		
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setBounds(192, 285, 5, 5);
+		contentPane.add(tabbedPane);
+		
+		JScrollPane scrollPane_6 = new JScrollPane();
+		scrollPane_6.setBounds(153, 258, 2, 2);
+		contentPane.add(scrollPane_6);
 		
 		DataLoader loader = new DataLoader(this.transID, this.customerID_order, this.orderID, this.invoiceNumber);
 		new Thread(loader).start();
