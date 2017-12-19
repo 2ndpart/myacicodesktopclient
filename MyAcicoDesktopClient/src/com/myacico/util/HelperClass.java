@@ -12,6 +12,7 @@ import com.myacico.sql.Database;
 public class HelperClass {
 	public static DefaultTableModel transModelViewer;
 	public static DefaultTableModel paidTransModelViewer;
+	public static DefaultTableModel b2bRegModelViewer;
 	public static String loginAs;
 	
 	public static TransactionDetail GetTransactionDetail(String orderID)

@@ -15,6 +15,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 
 import com.alee.laf.WebLookAndFeel;
+import com.myacico.ui.internalframe.IFrameB2BRegistrationViewer;
 import com.myacico.ui.internalframe.IFrameLogin;
 import com.myacico.ui.internalframe.IFramePackagingViewer;
 import com.myacico.ui.internalframe.IFrameTransactionViewer;
@@ -76,7 +77,7 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 742, 412);
+		setBounds(100, 100, 863, 475);
 		
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
@@ -152,6 +153,16 @@ public class MainFrame extends JFrame {
 			}
 		});
 		fileMenu.add(mntmWarehouse);
+		
+		JMenuItem mntmBbRegistrationApproval = new JMenuItem("B2B Registration Approval");
+		mntmBbRegistrationApproval.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				IFrameB2BRegistrationViewer b2bRegistration = new IFrameB2BRegistrationViewer();
+				desktopPane.add(b2bRegistration);
+				b2bRegistration.setVisible(true);
+			}
+		});
+		fileMenu.add(mntmBbRegistrationApproval);
 		
 		setLookAndFeel(nimbusLFString);
 	}
