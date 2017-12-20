@@ -46,6 +46,7 @@ import com.myacico.ui.internalframe.IFrameLogin;
 import com.myacico.ui.internalframe.IFrameTransactionViewer;
 import com.myacico.util.HelperClass;
 import com.myacico.util.TransactionDetail;
+import com.sun.mail.imap.protocol.Status;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -83,18 +84,15 @@ public class DetailOrderFrame extends JInternalFrame {
 	private JEditorPane editorPane;
 	private JTextField imgUrl;
 	private JScrollPane scrollPane_2;
-	private JScrollPane scrollPane_3;
-	private JScrollPane scrollPane_4;
-	private JScrollPane scrollPane_5;
 	/**
 	 * Create the frame.
 	 */
-	public DetailOrderFrame(String transID, String orderID, String customerID, String invoiceNumber) {
+	public DetailOrderFrame(String transID, String orderID, String customerID, String invoiceNumber, String status ) {
 		this.transID = transID;
 		this.orderID = orderID;
 		this.customerID_order = customerID;
 		this.invoiceNumber = invoiceNumber;
-		
+						
 		editorPane = new JEditorPane();
 		editorPane.setEditable(false);
 		//setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -110,7 +108,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(lblTransactionId);
 		
 		txtTransID = new JTextField();
-		txtTransID.setBounds(153, 22, 130, 26);
+		txtTransID.setBounds(153, 22, 134, 26);
 		contentPane.add(txtTransID);
 		txtTransID.setColumns(10);
 		
@@ -120,7 +118,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		
 		txtCustID = new JTextField();
 		txtCustID.setColumns(10);
-		txtCustID.setBounds(153, 55, 130, 26);
+		txtCustID.setBounds(153, 55, 134, 26);
 		contentPane.add(txtCustID);
 		
 		JLabel lblTransactionTime = new JLabel("Transaction Time");
@@ -129,17 +127,19 @@ public class DetailOrderFrame extends JInternalFrame {
 		
 		txtTransTime = new JTextField();
 		txtTransTime.setColumns(10);
-		txtTransTime.setBounds(153, 88, 130, 26);
+		txtTransTime.setBounds(153, 88, 134, 26);
 		contentPane.add(txtTransTime);
 		
 		JLabel lblTransactionStatus = new JLabel("Transaction Status");
 		lblTransactionStatus.setBounds(6, 126, 118, 16);
 		contentPane.add(lblTransactionStatus);
-		
+						
 		cbTransStatus = new JComboBox();
-		cbTransStatus.setModel(new DefaultComboBoxModel(new String[] {"PAID", "VERIFIED", "DELIVERED", "PENDING", "CANCELED"}));
-		cbTransStatus.setBounds(153, 122, 130, 27);
+		cbTransStatus.setModel(new DefaultComboBoxModel(new String[] {"PAID", "VERIFIED", "PAYMENT VERIFICATION", "DELIVERED", "PENDING", "CANCELED"}));
+		cbTransStatus.setBounds(153, 122, 188, 27);
 		contentPane.add(cbTransStatus);
+		
+		cbTransStatus.setSelectedItem(status);
 		
 		JLabel lblBillingAddress = new JLabel("Billing Address");
 		lblBillingAddress.setBounds(6, 158, 118, 16);
@@ -154,9 +154,6 @@ public class DetailOrderFrame extends JInternalFrame {
 		txtBillingAddress.setWrapStyleWord(true);
 		txtBillingAddress.setLineWrap(true);
 		
-		scrollPane_3 = new JScrollPane();
-		scrollPane_2.setRowHeaderView(scrollPane_3);
-		
 		JScrollPane scrollPane_7 = new JScrollPane();
 		scrollPane_7.setBounds(153, 258, 288, 90);
 		contentPane.add(scrollPane_7);
@@ -165,9 +162,6 @@ public class DetailOrderFrame extends JInternalFrame {
 		scrollPane_7.setViewportView(txtShippingAddress);
 		txtShippingAddress.setWrapStyleWord(true);
 		txtShippingAddress.setLineWrap(true);
-		
-		JScrollPane scrollPane_8 = new JScrollPane();
-		scrollPane_7.setRowHeaderView(scrollPane_8);
 		
 		JLabel lblShippingAddress = new JLabel("Shipping Address");
 		lblShippingAddress.setBounds(6, 258, 118, 16);
@@ -188,7 +182,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		
 		txtCustName = new JTextField();
 		txtCustName.setColumns(10);
-		txtCustName.setBounds(295, 55, 146, 26);
+		txtCustName.setBounds(297, 22, 146, 26);
 		contentPane.add(txtCustName);
 		
 		JPanel panel = new JPanel();
@@ -210,25 +204,9 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(imgUrl);
 		imgUrl.setColumns(10);
 		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(262, 221, 2, 2);
-		contentPane.add(scrollPane_1);
-		
-		scrollPane_4 = new JScrollPane();
-		scrollPane_4.setBounds(153, 260, 2, 88);
-		contentPane.add(scrollPane_4);
-		
-		scrollPane_5 = new JScrollPane();
-		scrollPane_5.setBounds(213, 310, 2, 2);
-		contentPane.add(scrollPane_5);
-		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(192, 285, 5, 5);
 		contentPane.add(tabbedPane);
-		
-		JScrollPane scrollPane_6 = new JScrollPane();
-		scrollPane_6.setBounds(153, 258, 2, 2);
-		contentPane.add(scrollPane_6);
 		
 		DataLoader loader = new DataLoader(this.transID, this.customerID_order, this.orderID, this.invoiceNumber);
 		new Thread(loader).start();

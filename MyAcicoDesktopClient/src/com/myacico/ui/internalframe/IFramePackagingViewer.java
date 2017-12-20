@@ -204,7 +204,7 @@ public class IFramePackagingViewer extends JInternalFrame {
 		}
 		new Thread(new DataLoader(fullQuery)).start();
 	}
-
+		
 	protected void jTable_clicked(MouseEvent e) {
 		// TODO Auto-generated method stub
 		JTable target = (JTable)e.getSource();
@@ -216,6 +216,7 @@ public class IFramePackagingViewer extends JInternalFrame {
 		String currentStatus = target.getValueAt(row, 6).toString();
 		DetailPackagingFrame packagingFrame = new DetailPackagingFrame(transID, orderNumber, currentStatus);
 		packagingFrame.setVisible(true);
+		//DetailOrderFrame orderframe = new DetailOrderFrame(transID, orderNumber, currentStatus);
 	}
 
 	void LoadTable()

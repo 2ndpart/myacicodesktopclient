@@ -18,17 +18,24 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.myacico.sql.Database;
+import com.myacico.ui.warehouse.warehouse;
 import com.myacico.util.HelperClass;
 import com.myacico.util.TransactionDetail;
+
+import net.sf.jasperreports.engine.JRException;
 
 import javax.swing.border.EtchedBorder;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.ScrollPane;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextPane;
@@ -39,6 +46,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class DetailPackagingFrame extends JFrame {
 
@@ -53,6 +62,9 @@ public class DetailPackagingFrame extends JFrame {
 	private JTextField txtAwbNumber;
 	private JTextField txtShipmentCharge;
 	private JTextField txtOrderNumber;
+	
+	List<warehouse>listawarehouse = new ArrayList<warehouse>();
+	
 	/**
 	 * Create the frame.
 	 */
@@ -78,8 +90,8 @@ public class DetailPackagingFrame extends JFrame {
 		shippingInfoPanel.add(shippingInfo, BorderLayout.CENTER);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		shippingInfoPanel.add(scrollPane, BorderLayout.WEST);
-		
+		shippingInfoPanel.add(scrollPane, BorderLayout.EAST);
+			
 		JPanel billingInfoPanel = new JPanel();
 		billingInfoPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Billing Address Information", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		billingInfoPanel.setBounds(309, 20, 281, 279);
@@ -88,16 +100,13 @@ public class DetailPackagingFrame extends JFrame {
 		
 		billingInfoPanel.add(billingInfo, BorderLayout.CENTER);
 		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		billingInfoPanel.add(scrollPane_1, BorderLayout.WEST);
-		
 		JButton btnShip = new JButton("Send Item");
 		btnShip.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				btnShip_clicked(arg0);
+				btnShip_clicked(arg0, listawarehouse);
 			}
 		});
-		btnShip.setBounds(602, 263, 113, 36);
+		btnShip.setBounds(612, 263, 126, 36);
 		panel.add(btnShip);
 		
 		JButton btnDelivered = new JButton("Delivered");
@@ -106,7 +115,7 @@ public class DetailPackagingFrame extends JFrame {
 				btnDelivered_Clicked(e);
 			}
 		});
-		btnDelivered.setBounds(710, 263, 113, 36);
+		btnDelivered.setBounds(748, 263, 128, 36);
 		panel.add(btnDelivered);
 		
 		JLabel lblNewLabel = new JLabel("AWB Number");
@@ -123,6 +132,24 @@ public class DetailPackagingFrame extends JFrame {
 		txtShipmentCharge.setBounds(728, 196, 148, 26);
 		panel.add(txtShipmentCharge);
 		
+		
+		/*scrollPane = new JScrollPane();
+		scrollPane.setBounds(x, y, width, height);
+		shippingInfoPanel.add(scrollPane);
+		
+		shippingInfoPanel = new shippingInfoPanel
+		ScrollPane.
+		 		  
+		
+		/*scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(153, 158, 288, 90);
+		contentPane.add(scrollPane_2);
+		
+		txtBillingAddress = new JTextArea();
+		scrollPane_2.setViewportView(txtBillingAddress);
+		txtBillingAddress.setWrapStyleWord(true);
+		txtBillingAddress.setLineWrap(true);*/
+		
 		JLabel lblOngkir = new JLabel("Shipment Charge");
 		lblOngkir.setBounds(612, 197, 113, 24);
 		panel.add(lblOngkir);
@@ -136,7 +163,7 @@ public class DetailPackagingFrame extends JFrame {
 		panel.add(txtOrderNumber);
 		txtOrderNumber.setColumns(10);
 		txtOrderNumber.setText(orderNumber);
-		
+
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Order Line Item", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
 		contentPane.add(panel_1);
@@ -147,9 +174,6 @@ public class DetailPackagingFrame extends JFrame {
 		this.transId = transID;
 		this.orderNumber = orderNumber;
 		editorPane.setEditable(false);
-		
-		JScrollPane scrollPane_2 = new JScrollPane();
-		panel_1.add(scrollPane_2, BorderLayout.WEST);
 		loadTransactionInfo();
 		loadShippingAddress();
 		loadBillingAddress();
@@ -221,9 +245,9 @@ public class DetailPackagingFrame extends JFrame {
 		}
 	}
 
-	protected void btnShip_clicked(ActionEvent arg0) {
+	protected void btnShip_clicked(ActionEvent arg0, List<warehouse> listawwarehouse) {
 		// TODO Auto-generated method stub
-		String updateStatement = "UPDATE adempiere.app_transaction SET Transaction_status='SHIPPED', awb_number='" + txtAwbNumber.getText() + "' WHERE transaction_id=" + transId;
+		/*String updateStatement = "UPDATE adempiere.app_transaction SET Transaction_status='SHIPPED', awb_number='" + txtAwbNumber.getText() + "' WHERE transaction_id=" + transId;
 		Connection conn = Database.GetSQLConnection();
 		int affectedRecord = Database.UpdateDataToServer(updateStatement, conn);
 		if(affectedRecord > 0)
@@ -269,6 +293,14 @@ public class DetailPackagingFrame extends JFrame {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		}*/
+		warehouse w = new warehouse();
+
+		try {
+			w.wwarehouse(listawwarehouse);
+		} catch (JRException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

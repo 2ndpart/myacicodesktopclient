@@ -57,6 +57,7 @@ public class IFrameTransactionViewer extends JInternalFrame {
 	private JXDatePicker dtpTo;
 	private String baseSelectStatement = "SELECT transaction_id as \"TRANS ID\", user_id as \"USER ID\", transaction_time as \"WAKTU TRANSAKSI\", order_number as \"NOMER ORDER\", invoice_number as \"NOMER INVOICE\", transaction_status \"STATUS\", courier as \"KURIR\" FROM adempiere.app_transaction WHERE payment_method = 'Bank Transfer' ORDER BY transaction_time DESC";
 	private JCheckBox chckbxCreditCard;
+		
 	/**
 	 * Create the frame.
 	 */
@@ -387,10 +388,11 @@ public class IFrameTransactionViewer extends JInternalFrame {
 		String userID = target.getValueAt(row, 1).toString();
 		String orderID = target.getValueAt(row, 3).toString();
 		String invoiceNumber = target.getValueAt(row, 4).toString();
+		String status = target.getValueAt(row, 5).toString();
 		
 		MainFrame frame = (MainFrame)this.getTopLevelAncestor();
 		
-		DetailOrderFrame detailOrder = new DetailOrderFrame(transID, orderID, userID, invoiceNumber);
+		DetailOrderFrame detailOrder = new DetailOrderFrame(transID, orderID, userID, invoiceNumber, status);
 		frame.desktopPane.add(detailOrder);
 		detailOrder.setVisible(true);
 	}

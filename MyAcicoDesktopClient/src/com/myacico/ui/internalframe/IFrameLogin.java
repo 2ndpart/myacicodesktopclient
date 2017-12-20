@@ -122,7 +122,7 @@ public class IFrameLogin extends WebInternalFrame {
 			HelperClass.loginAs = "Warehouse";
 			isLogin = true;
 		}
-		if(userName.equalsIgnoreCase("CS") && password.equalsIgnoreCase("csmyacico6^1!"))
+		if(userName.equalsIgnoreCase("CS") && password.equalsIgnoreCase("csmyacico6^1"))
 		{
 			HelperClass.loginAs = "CS";
 			isLogin = true;

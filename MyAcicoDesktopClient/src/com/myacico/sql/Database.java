@@ -19,7 +19,7 @@ public class Database {
 			DriverManager.registerDriver(new org.postgresql.Driver());
 			String url = "jdbc:postgresql://db.myacico.co.id:5432/idempiere-myacico";
             	String user = "adempiere";
-            	String pass = "adempiere";
+            	String pass = "d809f6b9bae795becbe4c3e85d5c8de3";
             	conn = DriverManager.getConnection(url, user, pass);
 		}
 		catch(Exception ex)
