@@ -62,6 +62,7 @@ public class IFrameTransactionViewer extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public IFrameTransactionViewer() {
+		setIconifiable(true);
 		setClosable(true);
 		setBounds(100, 100, 890, 420);
 		

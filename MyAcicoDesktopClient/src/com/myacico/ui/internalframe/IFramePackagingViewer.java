@@ -46,6 +46,7 @@ public class IFramePackagingViewer extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public IFramePackagingViewer() {
+		setIconifiable(true);
 		setClosable(true);
 		setBounds(100, 100, 824, 435);
 		
