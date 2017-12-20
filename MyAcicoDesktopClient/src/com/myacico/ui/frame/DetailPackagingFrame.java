@@ -31,6 +31,7 @@ import java.awt.ScrollPane;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JScrollPane;
@@ -48,6 +49,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
 
 public class DetailPackagingFrame extends JFrame {
 
@@ -103,7 +105,7 @@ public class DetailPackagingFrame extends JFrame {
 		JButton btnShip = new JButton("Send Item");
 		btnShip.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				btnShip_clicked(arg0, listawarehouse);
+				btnShip_clicked(arg0);
 			}
 		});
 		btnShip.setBounds(612, 263, 126, 36);
@@ -245,7 +247,7 @@ public class DetailPackagingFrame extends JFrame {
 		}
 	}
 
-	protected void btnShip_clicked(ActionEvent arg0, List<warehouse> listawwarehouse) {
+	protected void btnShip_clicked(ActionEvent arg0) {
 		// TODO Auto-generated method stub
 		/*String updateStatement = "UPDATE adempiere.app_transaction SET Transaction_status='SHIPPED', awb_number='" + txtAwbNumber.getText() + "' WHERE transaction_id=" + transId;
 		Connection conn = Database.GetSQLConnection();
@@ -297,7 +299,11 @@ public class DetailPackagingFrame extends JFrame {
 		warehouse w = new warehouse();
 
 		try {
-			w.wwarehouse(listawwarehouse);
+			HashMap<String, Object> parameters = new HashMap<String, Object>();
+			parameters.put("order", txtOrderNumber.getText());
+			System.out.println("OrderNum : " +txtOrderNumber.getText());
+			System.out.println("listawarehouse: " + listawarehouse.toString());
+			w.wwarehouse(listawarehouse, parameters);
 		} catch (JRException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
