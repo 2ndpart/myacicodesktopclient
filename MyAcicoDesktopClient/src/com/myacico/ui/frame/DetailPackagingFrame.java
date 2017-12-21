@@ -61,11 +61,13 @@ public class DetailPackagingFrame extends JFrame {
 	private JEditorPane editorPane = new JEditorPane();
 	private JTextPane shippingInfo = new JTextPane();
 	private JTextPane billingInfo = new JTextPane();
-	private JTextField txtAwbNumber;
+	/*private JTextField txtAwbNumber;*/
 	private JTextField txtShipmentCharge;
 	private JTextField txtOrderNumber;
 	
 	List<warehouse>listawarehouse = new ArrayList<warehouse>();
+	private JTextField txtTRXCode;
+	private JTextField txtAwb_number;
 	
 	/**
 	 * Create the frame.
@@ -92,7 +94,7 @@ public class DetailPackagingFrame extends JFrame {
 		shippingInfoPanel.add(shippingInfo, BorderLayout.CENTER);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		shippingInfoPanel.add(scrollPane, BorderLayout.EAST);
+		shippingInfoPanel.add(scrollPane, BorderLayout.NORTH);
 			
 		JPanel billingInfoPanel = new JPanel();
 		billingInfoPanel.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Billing Address Information", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
@@ -124,10 +126,10 @@ public class DetailPackagingFrame extends JFrame {
 		lblNewLabel.setBounds(612, 227, 93, 24);
 		panel.add(lblNewLabel);
 		
-		txtAwbNumber = new JTextField();
+		/*txtAwbNumber = new JTextField();
 		txtAwbNumber.setBounds(728, 226, 148, 26);
 		panel.add(txtAwbNumber);
-		txtAwbNumber.setColumns(10);
+		txtAwbNumber.setColumns(10);*/
 		
 		txtShipmentCharge = new JTextField();
 		txtShipmentCharge.setColumns(10);
@@ -157,7 +159,7 @@ public class DetailPackagingFrame extends JFrame {
 		panel.add(lblOngkir);
 		
 		JLabel lblOrderNumber = new JLabel("Order Number");
-		lblOrderNumber.setBounds(612, 167, 113, 24);
+		lblOrderNumber.setBounds(612, 166, 113, 24);
 		panel.add(lblOrderNumber);
 		
 		txtOrderNumber = new JTextField();
@@ -165,6 +167,20 @@ public class DetailPackagingFrame extends JFrame {
 		panel.add(txtOrderNumber);
 		txtOrderNumber.setColumns(10);
 		txtOrderNumber.setText(orderNumber);
+		
+		JLabel lblTrxCode = new JLabel("TRX Code");
+		lblTrxCode.setBounds(612, 135, 113, 24);
+		panel.add(lblTrxCode);
+		
+		txtTRXCode = new JTextField();
+		txtTRXCode.setColumns(10);
+		txtTRXCode.setBounds(728, 130, 148, 26);
+		panel.add(txtTRXCode);
+		
+		txtAwb_number = new JTextField();
+		txtAwb_number.setColumns(10);
+		txtAwb_number.setBounds(728, 226, 148, 26);
+		panel.add(txtAwb_number);
 
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new TitledBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null), "Order Line Item", TitledBorder.LEADING, TitledBorder.TOP, null, new Color(0, 0, 0)));
@@ -249,7 +265,7 @@ public class DetailPackagingFrame extends JFrame {
 
 	protected void btnShip_clicked(ActionEvent arg0) {
 		// TODO Auto-generated method stub
-		/*String updateStatement = "UPDATE adempiere.app_transaction SET Transaction_status='SHIPPED', awb_number='" + txtAwbNumber.getText() + "' WHERE transaction_id=" + transId;
+		/*String updateStatement = "UPDATE adempiere.app_transaction SET Transaction_status='SHIPPING', awb_number='" + txtAwbNumber.getText() + "' WHERE transaction_id=" + transId;
 		Connection conn = Database.GetSQLConnection();
 		int affectedRecord = Database.UpdateDataToServer(updateStatement, conn);
 		if(affectedRecord > 0)
@@ -296,10 +312,14 @@ public class DetailPackagingFrame extends JFrame {
 				e1.printStackTrace();
 			}
 		}*/
+		
+		
 		warehouse w = new warehouse();
 
 		try {
 			HashMap<String, Object> parameters = new HashMap<String, Object>();
+			parameters.put("Awb_number", txtAwb_number.getText());
+			parameters.put("Trx_Code", txtTRXCode.getText());
 			parameters.put("order", txtOrderNumber.getText());
 			System.out.println("OrderNum : " +txtOrderNumber.getText());
 			System.out.println("listawarehouse: " + listawarehouse.toString());

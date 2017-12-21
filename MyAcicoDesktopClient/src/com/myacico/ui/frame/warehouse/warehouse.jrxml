@@ -6,9 +6,11 @@
 	<parameter name="order" class="java.lang.String">
 		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
 	</parameter>
+	<parameter name="Trx_Code" class="java.lang.String"/>
+	<parameter name="Awb_number" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[select at.grand_total::numeric,at.shipping_name,at.shipping_address1,
-at.shipping_city,at.shipping_district,at.shipping_village,at.shipping_phone1,at.order_number,
+at.shipping_city,at.shipping_district,at.awb_number,at.shipping_village,at.shipping_phone1,at.courier,at.shipping_phone2,at.order_number,
 at.transaction_time,get_app_nextdo(),ati.item_name,ati.quantity from app_transaction at
 inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
  where order_number=$P{order}]]>
@@ -18,8 +20,11 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 	<field name="shipping_address1" class="java.lang.String"/>
 	<field name="shipping_city" class="java.lang.String"/>
 	<field name="shipping_district" class="java.lang.String"/>
+	<field name="awb_number" class="java.lang.String"/>
 	<field name="shipping_village" class="java.lang.String"/>
 	<field name="shipping_phone1" class="java.lang.String"/>
+	<field name="courier" class="java.lang.String"/>
+	<field name="shipping_phone2" class="java.lang.String"/>
 	<field name="order_number" class="java.lang.String"/>
 	<field name="transaction_time" class="java.sql.Timestamp"/>
 	<field name="get_app_nextdo" class="java.lang.String"/>
@@ -28,6 +33,7 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 	<variable name="quantity_1" class="java.lang.Integer" resetType="Column" calculation="Sum">
 		<variableExpression><![CDATA[$F{quantity}]]></variableExpression>
 	</variable>
+	<variable name="variable1" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -35,7 +41,7 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 		<band height="2" splitType="Stretch"/>
 	</title>
 	<pageHeader>
-		<band height="222" splitType="Stretch">
+		<band height="234" splitType="Stretch">
 			<staticText>
 				<reportElement x="364" y="26" width="207" height="20" uuid="34af7745-5b3d-4117-ae0f-c6b5f3ac3f3a"/>
 				<textElement>
@@ -62,22 +68,22 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 				<textElement>
 					<font fontName="Arial" size="9"/>
 				</textElement>
-				<text><![CDATA[Kel.Krucut Kec. Taman Sasri Jakrta Barat 11140]]></text>
+				<text><![CDATA[Kel. Krukut Kec. Taman Sari Jakrta Barat 11140]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="357" y="0" width="211" height="20" uuid="dcb99ef9-ce96-424d-8f89-0fc057604bd2"/>
+				<reportElement x="354" y="0" width="211" height="20" uuid="dcb99ef9-ce96-424d-8f89-0fc057604bd2"/>
 				<textElement>
 					<font fontName="Arial" size="9"/>
 				</textElement>
-				<text><![CDATA[ PT.MyAcico Global Indonesia-www.MyAcico.com]]></text>
+				<text><![CDATA[ PT. MyAcico Global Indonesia-www.MyAcico.com]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="10" y="109" width="45" height="20" uuid="763cf186-5592-4b50-b9f1-c057f6262ec2"/>
 				<text><![CDATA[Ship To :]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="375" y="117" width="148" height="20" uuid="428a56b2-3d1a-4b96-8ef6-78a2778d90fe"/>
-				<textElement>
+				<reportElement x="352" y="117" width="193" height="20" uuid="428a56b2-3d1a-4b96-8ef6-78a2778d90fe"/>
+				<textElement textAlignment="Center">
 					<font fontName="Arial" size="16" isBold="true"/>
 				</textElement>
 				<text><![CDATA[DELIVERY ORDER]]></text>
@@ -104,14 +110,14 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 				<text><![CDATA[Nomor DO   :]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="11" y="130" width="100" height="20" uuid="b12e0860-0268-4b53-bd7f-927952c4e7a7"/>
+				<reportElement x="11" y="129" width="197" height="20" uuid="b12e0860-0268-4b53-bd7f-927952c4e7a7"/>
 				<textElement>
 					<font fontName="Arial" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{shipping_address1}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="10" y="188" width="100" height="20" uuid="56b634e3-9c0f-45df-b2a4-00eea486a0ca"/>
+				<reportElement x="12" y="199" width="52" height="20" uuid="56b634e3-9c0f-45df-b2a4-00eea486a0ca"/>
 				<textElement>
 					<font fontName="Arial" size="9"/>
 				</textElement>
@@ -132,35 +138,28 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 				<textFieldExpression><![CDATA[$F{transaction_time}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="428" y="147" width="109" height="20" uuid="7fad2c8a-8c3f-49c7-8f46-f650a553b65b"/>
-				<textElement>
-					<font fontName="Arial" size="11"/>
-				</textElement>
-				<textFieldExpression><![CDATA[$F{order_number}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="11" y="142" width="100" height="20" uuid="2f570408-a7c6-40cd-8d7f-d0425186021f"/>
+				<reportElement x="11" y="142" width="197" height="20" uuid="2f570408-a7c6-40cd-8d7f-d0425186021f"/>
 				<textElement>
 					<font fontName="Arial" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{shipping_village}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="10" y="155" width="100" height="20" uuid="1234d5fb-9414-400f-ae9e-3e18322c3bf2"/>
+				<reportElement x="10" y="155" width="198" height="20" uuid="1234d5fb-9414-400f-ae9e-3e18322c3bf2"/>
 				<textElement>
 					<font fontName="Arial" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{shipping_district}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="11" y="167" width="100" height="20" uuid="7a0a8724-0c33-4bbb-83c2-64f707eb735a"/>
+				<reportElement x="11" y="167" width="197" height="20" uuid="7a0a8724-0c33-4bbb-83c2-64f707eb735a"/>
 				<textElement>
 					<font fontName="Arial" size="9"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{shipping_city}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="11" y="200" width="100" height="20" uuid="ed331ae3-c61b-49fe-94f3-49474eb47def"/>
+				<reportElement x="12" y="212" width="197" height="20" uuid="ed331ae3-c61b-49fe-94f3-49474eb47def"/>
 				<textElement>
 					<font fontName="Arial" size="9"/>
 				</textElement>
@@ -188,20 +187,34 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 				<reportElement x="5" y="-2" width="203" height="60" uuid="0969bd98-4817-4e28-9cfc-dfa723c76a60"/>
 				<imageExpression><![CDATA["C:\\Users\\Myacico\\Pictures\\logo.jpg"]]></imageExpression>
 			</image>
+			<textField>
+				<reportElement x="12" y="186" width="97" height="20" uuid="ea11e4ec-799a-4c6b-afb1-060edb934455"/>
+				<textElement>
+					<font fontName="Arial" size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{shipping_phone2}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="427" y="148" width="107" height="20" uuid="6bbd63df-d410-4298-acce-fa6317daed19"/>
+				<textElement>
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Trx_Code}]]></textFieldExpression>
+			</textField>
 		</band>
 	</pageHeader>
 	<columnHeader>
 		<band height="24" splitType="Stretch">
 			<staticText>
-				<reportElement x="511" y="5" width="18" height="19" uuid="42611c69-89af-4438-8552-9c591647cbb2"/>
-				<textElement>
+				<reportElement x="495" y="5" width="48" height="19" uuid="42611c69-89af-4438-8552-9c591647cbb2"/>
+				<textElement textAlignment="Center">
 					<font fontName="Arial" size="11"/>
 				</textElement>
 				<text><![CDATA[Qty]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="236" y="4" width="100" height="20" uuid="12124535-0ca9-42fa-a722-b58bb548a892"/>
-				<textElement>
+				<reportElement x="64" y="4" width="430" height="20" uuid="12124535-0ca9-42fa-a722-b58bb548a892"/>
+				<textElement textAlignment="Center">
 					<font fontName="Arial" size="11"/>
 				</textElement>
 				<text><![CDATA[Item(s)]]></text>
@@ -222,8 +235,8 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 				<reportElement x="62" y="1" width="1" height="21" uuid="738dfa50-e199-45f2-ad6e-8dde2fc51590"/>
 			</line>
 			<staticText>
-				<reportElement x="29" y="4" width="31" height="20" uuid="c9d82d49-3ce0-4faf-a6d6-330aa355f830"/>
-				<textElement>
+				<reportElement x="12" y="4" width="51" height="20" uuid="c9d82d49-3ce0-4faf-a6d6-330aa355f830"/>
+				<textElement textAlignment="Center">
 					<font fontName="Arial" size="11"/>
 				</textElement>
 				<text><![CDATA[No]]></text>
@@ -233,15 +246,15 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 	<detail>
 		<band height="24" splitType="Stretch">
 			<textField>
-				<reportElement x="517" y="2" width="18" height="20" uuid="7fb7ebf4-7d2f-43b9-a3cd-b72a955af0b1"/>
-				<textElement>
+				<reportElement x="495" y="2" width="51" height="20" uuid="7fb7ebf4-7d2f-43b9-a3cd-b72a955af0b1"/>
+				<textElement textAlignment="Center">
 					<font fontName="Arial" size="11"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{quantity}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="31" y="3" width="31" height="20" uuid="fd3a0202-69a4-4c8d-a72f-59ed58db6f56"/>
-				<textElement>
+				<reportElement x="11" y="3" width="51" height="20" uuid="fd3a0202-69a4-4c8d-a72f-59ed58db6f56"/>
+				<textElement textAlignment="Center">
 					<font fontName="Arial" size="11"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
@@ -277,7 +290,7 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 		<band height="5" splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="80" splitType="Stretch">
+		<band height="78" splitType="Stretch">
 			<staticText>
 				<reportElement x="17" y="6" width="70" height="20" uuid="97ad1856-c159-470c-9367-93d77ac9ed67"/>
 				<text><![CDATA[Prepared By :]]></text>
@@ -320,7 +333,7 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 		</band>
 	</pageFooter>
 	<summary>
-		<band height="25" splitType="Stretch">
+		<band height="101" splitType="Stretch">
 			<staticText>
 				<reportElement x="409" y="4" width="76" height="20" uuid="aff4a865-4163-4205-9c86-5063962db7fe"/>
 				<textElement>
@@ -344,11 +357,74 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 				<reportElement x="494" y="-5" width="1" height="28" uuid="fbc2f4f5-bce3-42f2-9acd-fbdcbdc71d1b"/>
 			</line>
 			<textField>
-				<reportElement x="517" y="4" width="21" height="20" uuid="50a3bd25-4065-4a06-bafe-3dbee9b7650b"/>
-				<textElement>
+				<reportElement x="495" y="4" width="50" height="20" uuid="50a3bd25-4065-4a06-bafe-3dbee9b7650b"/>
+				<textElement textAlignment="Center">
 					<font fontName="Arial" size="11"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$V{quantity_1}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="11" y="95" width="534" height="1" uuid="30d1d4f3-307d-4ae5-9f7f-a8a3fb9c61c7"/>
+			</line>
+			<line>
+				<reportElement x="10" y="52" width="535" height="1" uuid="0b0ba334-df13-4d1a-bfab-4f2e923cf6f2"/>
+			</line>
+			<line>
+				<reportElement x="11" y="74" width="534" height="1" uuid="ab9d0a28-f88a-4857-9a38-492e11e7fd91"/>
+			</line>
+			<line>
+				<reportElement x="10" y="53" width="1" height="42" uuid="16ca304c-9b39-45ac-bf62-e28d5300d275"/>
+			</line>
+			<line>
+				<reportElement x="545" y="52" width="1" height="43" uuid="1c608487-b88e-42f2-bb70-85e7cc3ddecb"/>
+			</line>
+			<line>
+				<reportElement x="168" y="52" width="1" height="43" uuid="88bfb558-84c4-4d97-ad00-876975a60246"/>
+			</line>
+			<staticText>
+				<reportElement x="169" y="58" width="193" height="20" uuid="6303021e-5aa2-4e20-af02-a4e1d016fec1"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<text><![CDATA[Nomor Resi]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="11" y="57" width="157" height="20" uuid="e0304be8-baa5-416d-b8d6-c2e01a473a3d"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<text><![CDATA[Kurir]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="10" y="78" width="158" height="22" uuid="073cdf3e-4542-4010-bfe8-f2fb0fc943f9"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{courier}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="364" y="79" width="181" height="20" uuid="e773dcc7-0190-48f4-8f9d-fd5cfddced1d"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{order_number}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="362" y="53" width="1" height="43" uuid="c8af112f-611c-40f5-8c80-c3f19ec3108a"/>
+			</line>
+			<staticText>
+				<reportElement x="362" y="58" width="183" height="20" uuid="f2614c40-2327-4bce-9642-586e6bcc5098"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial" size="11"/>
+				</textElement>
+				<text><![CDATA[Order Number]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="169" y="79" width="193" height="20" uuid="266fd204-99c8-4f89-9962-c906f166ef60"/>
+				<textElement textAlignment="Center">
+					<font fontName="Arial"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{Awb_number}]]></textFieldExpression>
 			</textField>
 		</band>
 	</summary>

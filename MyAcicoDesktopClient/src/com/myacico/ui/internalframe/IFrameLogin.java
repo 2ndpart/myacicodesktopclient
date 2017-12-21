@@ -89,6 +89,7 @@ public class IFrameLogin extends WebInternalFrame {
 		gbc_txtPassword.gridy = 4;
 		getContentPane().add(txtPassword, gbc_txtPassword);
 		
+		
 		JButton btnLogin = new JButton("");
 		btnLogin.setIcon(new ImageIcon(IFrameLogin.class.getResource("/com/myacico/ui/image/login.png")));
 		btnLogin.addActionListener(new ActionListener() {
