@@ -64,18 +64,18 @@ inner join app_transaction_item ati on at.transaction_id=ati.transaction_id
 				<text><![CDATA[Head Office: Jalan Kesehatan Raya 60 OP, Kel. Petojo Selatan Kec. Gambir]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="362" y="51" width="203" height="18" uuid="9c424f9a-4e37-4b31-bfdc-576e7467d574"/>
+				<reportElement x="358" y="51" width="203" height="18" uuid="9c424f9a-4e37-4b31-bfdc-576e7467d574"/>
 				<textElement>
 					<font fontName="Arial" size="9"/>
 				</textElement>
-				<text><![CDATA[Kel. Krukut Kec. Taman Sari Jakrta Barat 11140]]></text>
+				<text><![CDATA[Kel. Krukut Kec. Taman Sari Jakarta Barat 11140]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="354" y="0" width="211" height="20" uuid="dcb99ef9-ce96-424d-8f89-0fc057604bd2"/>
+				<reportElement x="350" y="0" width="211" height="20" uuid="dcb99ef9-ce96-424d-8f89-0fc057604bd2"/>
 				<textElement>
 					<font fontName="Arial" size="9"/>
 				</textElement>
-				<text><![CDATA[ PT. MyAcico Global Indonesia-www.MyAcico.com]]></text>
+				<text><![CDATA[ PT. MyAcico Global Indonesia-www. MyAcico.com]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="10" y="109" width="45" height="20" uuid="763cf186-5592-4b50-b9f1-c057f6262ec2"/>

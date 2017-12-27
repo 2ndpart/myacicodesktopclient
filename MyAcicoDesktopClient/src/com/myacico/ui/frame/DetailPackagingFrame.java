@@ -90,6 +90,7 @@ public class DetailPackagingFrame extends JFrame {
 		shippingInfoPanel.setBounds(16, 20, 281, 279);
 		panel.add(shippingInfoPanel);
 		shippingInfoPanel.setLayout(new BorderLayout(0, 0));
+		shippingInfo.setEditable(false);
 		
 		shippingInfoPanel.add(shippingInfo, BorderLayout.CENTER);
 		
@@ -101,6 +102,7 @@ public class DetailPackagingFrame extends JFrame {
 		billingInfoPanel.setBounds(309, 20, 281, 279);
 		panel.add(billingInfoPanel);
 		billingInfoPanel.setLayout(new BorderLayout(0, 0));
+		billingInfo.setEditable(false);
 		
 		billingInfoPanel.add(billingInfo, BorderLayout.CENTER);
 		
@@ -132,6 +134,7 @@ public class DetailPackagingFrame extends JFrame {
 		txtAwbNumber.setColumns(10);*/
 		
 		txtShipmentCharge = new JTextField();
+		txtShipmentCharge.setEditable(false);
 		txtShipmentCharge.setColumns(10);
 		txtShipmentCharge.setBounds(728, 196, 148, 26);
 		panel.add(txtShipmentCharge);
@@ -163,6 +166,7 @@ public class DetailPackagingFrame extends JFrame {
 		panel.add(lblOrderNumber);
 		
 		txtOrderNumber = new JTextField();
+		txtOrderNumber.setEditable(false);
 		txtOrderNumber.setBounds(728, 165, 148, 26);
 		panel.add(txtOrderNumber);
 		txtOrderNumber.setColumns(10);
@@ -265,9 +269,19 @@ public class DetailPackagingFrame extends JFrame {
 
 	protected void btnShip_clicked(ActionEvent arg0) {
 		// TODO Auto-generated method stub
-		/*String updateStatement = "UPDATE adempiere.app_transaction SET Transaction_status='SHIPPING', awb_number='" + txtAwbNumber.getText() + "' WHERE transaction_id=" + transId;
+		/*String updateStatement = "UPDATE adempiere.app_transaction SET Transaction_status='SHIPPING', awb_number='" + txtAwb_number.getText() + "' WHERE transaction_id=" + transId;
 		Connection conn = Database.GetSQLConnection();
-		int affectedRecord = Database.UpdateDataToServer(updateStatement, conn);
+		int affectedRecord = Database.UpdateDataToServer(updateStatement, conn);*/
+		
+    		if (txtTRXCode.getText().isEmpty()){
+        		JOptionPane.showMessageDialog(this, "TRX Code Tidak Boleh Kosong\nSilahkan Isi Dulu","Informasi",
+                	JOptionPane.INFORMATION_MESSAGE);
+    			}else{
+ 					txtTRXCode.setText(txtTRXCode.getText());                     
+        		}
+			}
+      	
+		/*
 		if(affectedRecord > 0)
 		{
 			for(int i=0;i<HelperClass.paidTransModelViewer.getRowCount();i++)
@@ -279,7 +293,7 @@ public class DetailPackagingFrame extends JFrame {
 					break;
 				}
 			}
-			String jsonInput = "{\"orderId\":\"" + this.orderNumber + "\",\"awbNumber\":\"" + txtAwbNumber.getText() + "\",\"status\":\"SHIPPING\"}";
+			String jsonInput = "{\"orderId\":\"" + this.orderNumber + "\",\"awbNumber\":\"" + txtAwb_number.getText() + "\",\"status\":\"SHIPPING\"}";
 			String urlTarget = "https://api.myacico.co.id/myacico-service/mail/sendemailorderstatus";
 			String tokenVal = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtYWlsQG1haWwuY29tIiwiYXVkIjoiQURNSU4tQUNDIiwianRpIjoiMjM0MiJ9.i-A1qHNcyoo2z-GTqgue5YKWdDi04qjWER_lDAkG07o";
             StringEntity requestEntity = new StringEntity(jsonInput, ContentType.APPLICATION_JSON);
@@ -311,7 +325,7 @@ public class DetailPackagingFrame extends JFrame {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-		}*/
+		}
 		
 		
 		warehouse w = new warehouse();
@@ -328,7 +342,7 @@ public class DetailPackagingFrame extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	private void loadTransactionInfo()
 	{

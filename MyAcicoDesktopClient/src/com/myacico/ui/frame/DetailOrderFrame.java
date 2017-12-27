@@ -108,6 +108,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(lblTransactionId);
 		
 		txtTransID = new JTextField();
+		txtTransID.setEditable(false);
 		txtTransID.setBounds(153, 22, 134, 26);
 		contentPane.add(txtTransID);
 		txtTransID.setColumns(10);
@@ -117,6 +118,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(lblCustomerId);
 		
 		txtCustID = new JTextField();
+		txtCustID.setEditable(false);
 		txtCustID.setColumns(10);
 		txtCustID.setBounds(153, 55, 134, 26);
 		contentPane.add(txtCustID);
@@ -126,6 +128,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(lblTransactionTime);
 		
 		txtTransTime = new JTextField();
+		txtTransTime.setEditable(false);
 		txtTransTime.setColumns(10);
 		txtTransTime.setBounds(153, 88, 134, 26);
 		contentPane.add(txtTransTime);
@@ -135,6 +138,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(lblTransactionStatus);
 						
 		cbTransStatus = new JComboBox();
+		cbTransStatus.setEditable(true);
 		cbTransStatus.setModel(new DefaultComboBoxModel(new String[] {"PAID", "VERIFIED", "PAYMENT VERIFICATION", "DELIVERED", "PENDING", "CANCELED"}));
 		cbTransStatus.setBounds(153, 122, 188, 27);
 		contentPane.add(cbTransStatus);
@@ -150,6 +154,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(scrollPane_2);
 		
 		txtBillingAddress = new JTextArea();
+		txtBillingAddress.setEditable(false);
 		scrollPane_2.setViewportView(txtBillingAddress);
 		txtBillingAddress.setWrapStyleWord(true);
 		txtBillingAddress.setLineWrap(true);
@@ -159,6 +164,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(scrollPane_7);
 		
 		txtShippingAddress = new JTextArea();
+		txtShippingAddress.setEditable(false);
 		scrollPane_7.setViewportView(txtShippingAddress);
 		txtShippingAddress.setWrapStyleWord(true);
 		txtShippingAddress.setLineWrap(true);
@@ -181,6 +187,7 @@ public class DetailOrderFrame extends JInternalFrame {
 		contentPane.add(btnUpdateData);
 		
 		txtCustName = new JTextField();
+		txtCustName.setEditable(false);
 		txtCustName.setColumns(10);
 		txtCustName.setBounds(297, 22, 146, 26);
 		contentPane.add(txtCustName);

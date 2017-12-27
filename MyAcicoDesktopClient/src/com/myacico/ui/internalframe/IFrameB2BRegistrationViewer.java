@@ -20,11 +20,14 @@ import org.jdesktop.swingx.JXDatePicker;
 
 import com.myacico.sql.Database;
 import com.myacico.ui.builder.UIBuilder;
+import com.myacico.ui.frame.DetailB2BRegistrationFrame;
 import com.myacico.util.HelperClass;
 
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class IFrameB2BRegistrationViewer extends JInternalFrame {
 	private JTextField emailField;
@@ -55,6 +58,12 @@ public class IFrameB2BRegistrationViewer extends JInternalFrame {
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 		
 		table = new JTable();
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				tableCell_Clicked(arg0);
+			}
+		});
 		scrollPane.setViewportView(table);
 		
 		JPanel panel = new JPanel();
@@ -157,6 +166,16 @@ public class IFrameB2BRegistrationViewer extends JInternalFrame {
 		new Thread(new DataLoader(this.basicSelectStatement)).start();
 	}
 	
+	protected void tableCell_Clicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		JTable target = (JTable)e.getSource();
+		int row = target.getSelectedRow();
+		
+		String email = target.getValueAt(row, 2).toString();
+		DetailB2BRegistrationFrame b2bRegFrame = new DetailB2BRegistrationFrame(email);
+		b2bRegFrame.setVisible(true);
+	}
+
 	private class DataLoader implements Runnable
 	{
 		String selectStatement = "";
