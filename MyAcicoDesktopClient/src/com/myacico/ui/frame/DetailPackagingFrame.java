@@ -139,24 +139,6 @@ public class DetailPackagingFrame extends JFrame {
 		txtShipmentCharge.setBounds(728, 196, 148, 26);
 		panel.add(txtShipmentCharge);
 		
-		
-		/*scrollPane = new JScrollPane();
-		scrollPane.setBounds(x, y, width, height);
-		shippingInfoPanel.add(scrollPane);
-		
-		shippingInfoPanel = new shippingInfoPanel
-		ScrollPane.
-		 		  
-		
-		/*scrollPane_2 = new JScrollPane();
-		scrollPane_2.setBounds(153, 158, 288, 90);
-		contentPane.add(scrollPane_2);
-		
-		txtBillingAddress = new JTextArea();
-		scrollPane_2.setViewportView(txtBillingAddress);
-		txtBillingAddress.setWrapStyleWord(true);
-		txtBillingAddress.setLineWrap(true);*/
-		
 		JLabel lblOngkir = new JLabel("Shipment Charge");
 		lblOngkir.setBounds(612, 197, 113, 24);
 		panel.add(lblOngkir);
